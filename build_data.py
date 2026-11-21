@@ -278,6 +278,7 @@ def main():
             "weekly_range": [df.date.min().strftime("%Y-%m-%d"), df.date.max().strftime("%Y-%m-%d")],
             "weekly_source_status": src,
             "daily_snapshots": [s["date"] for s in snaps],
+            "daily_latest_errors": (snaps[-1].get("errors") or []) if snaps else ["no daily snapshot"],
             "sources": {
                 "getdeploying": "Weekly median of daily captures (ON_DEMAND, SPOT, 1-month RESERVATION). CC BY 4.0. USD per GPU-hour. Series starts 2025-11-17 for the tracked models.",
                 "runpod": "Public GraphQL gpuTypes (own daily snapshots).",

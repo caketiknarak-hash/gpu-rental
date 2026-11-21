@@ -67,6 +67,8 @@ h1{margin:4px 0 4px; font-size:clamp(24px,3.4vw,34px); font-weight:600; letter-s
 .top-r{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 .asof{font-size:12px; color:var(--muted); border:1px solid var(--line); background:var(--surface); padding:6px 10px; border-radius:6px}
 .asof b{color:var(--fg); font-weight:500}
+.stale{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--down); border:1px solid var(--down); background:color-mix(in srgb,var(--down) 12%,transparent); padding:6px 10px; border-radius:6px; white-space:nowrap; cursor:help}
+.stale svg{width:12px; height:12px; fill:currentColor; flex:none}
 .btn{border:1px solid var(--line); background:var(--surface); border-radius:6px; padding:6px 11px; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
 .btn[aria-pressed="true"]{border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
@@ -435,6 +437,7 @@ table.ct{border-collapse:separate; border-spacing:0; width:100%; font-size:13px;
     </div>
     <div class="top-r">
       <span class="asof mono" id="asof">กำลังโหลดข้อมูล</span>
+      <span class="stale" id="stale" hidden></span>
       <button class="btn" id="themeBtn" type="button" aria-label="สลับธีมสี">
         <svg class="ic" viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>
         <span id="themeLbl">ธีม: อัตโนมัติ</span>
@@ -927,11 +930,29 @@ function buildFooter(){
 
 function section(code,title,hint,body){return '<section class="panel"><header class="ph"><span class="code">'+code+'</span><h2>'+title+'</h2><span class="hint">'+hint.split('\n').map(x=>'<span class="ln">'+x+'</span>').join('')+'</span></header>'+body+'</section>'}
 
+/* stale-data badge: tells the viewer the numbers may be old (system stopped / a source failed) */
+function staleCheck(lastWeek){
+  const el=$('#stale');if(!el)return;
+  const now=Date.now(),day=864e5,meta=D.meta,msgs=[];
+  const ageD=d=>(now-Date.parse(d+'T00:00:00Z'))/day;
+  if(meta.built_at&&(now-Date.parse(meta.built_at))/day>2)msgs.push(['ระบบไม่ได้อัปเดต','สร้างข้อมูลครั้งล่าสุด '+fmtD(meta.built_at.slice(0,10))]);
+  const snaps=meta.daily_snapshots||[];const lastSnap=snaps[snaps.length-1];
+  if(!lastSnap||ageD(lastSnap)>2)msgs.push(['ราคารายวันค้าง','RunPod / Vast.ai ล่าสุด '+(lastSnap?fmtD(lastSnap):'ไม่มี')]);
+  else if((meta.daily_latest_errors||[]).length)msgs.push(['ราคารายวันเก็บไม่ครบ','วันที่ '+fmtD(lastSnap)+' บางแหล่งดึงไม่ได้']);
+  if(lastWeek&&ageD(lastWeek)>10)msgs.push(['ราคารายสัปดาห์ค้าง','GetDeploying ล่าสุดสัปดาห์ '+fmtD(lastWeek)]);
+  if(!msgs.length){el.hidden=true;return}
+  el.hidden=false;
+  el.innerHTML='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.5 10.5H.5z"/></svg>'+esc(msgs.length===1?msgs[0][0]:'ข้อมูลค้าง '+msgs.length+' จุด');
+  const tip=msgs.map(m=>m[0]+'\n'+m[1]).join('\n')+'\nตัวเลขบนหน้านี้อาจไม่ใช่ล่าสุด';
+  el.setAttribute('data-tip',tip);el.setAttribute('tabindex','0');el.setAttribute('aria-label',tip.replace(/\n/g,' '));
+}
+
 function render(){
   MODELS=D.meta.models;WOW=wowMatrix();
   const wr=D.meta.weekly_range||[];
   const lastDate=D.weekly[MODELS[0].key].slice(-1)[0].date;
   $('#asof').innerHTML='ข้อมูลรายสัปดาห์ถึง <b>'+fmtD(lastDate)+'</b>';
+  staleCheck(lastDate);
   $('#legendNote').hidden=false;
   let saved=null;try{saved=localStorage.getItem('gpu-focus')}catch(e){}
   if(saved&&D.derived[saved])focus=saved;else if(!D.derived[focus])focus=MODELS[0].key;

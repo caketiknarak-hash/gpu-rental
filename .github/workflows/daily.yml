@@ -63,6 +63,14 @@ jobs:
         with:
           path: site
 
+      - name: Health check (fails the run so GitHub emails you)
+        id: health
+        continue-on-error: true
+        run: python check_health.py
+
+    outputs:
+      health: ${{ steps.health.outcome }}
+
   deploy:
     needs: update
     runs-on: ubuntu-latest
@@ -75,3 +83,16 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  report:
+    needs: [update, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when data is incomplete or stale
+        run: |
+          echo "update=${{ needs.update.result }} deploy=${{ needs.deploy.result }} health=${{ needs.update.outputs.health }}"
+          if [ "${{ needs.update.result }}" != "success" ] || [ "${{ needs.deploy.result }}" != "success" ] || [ "${{ needs.update.outputs.health }}" != "success" ]; then
+            echo "::error::GPU data update incomplete - see the update job log (Health check step)"
+            exit 1
+          fi
