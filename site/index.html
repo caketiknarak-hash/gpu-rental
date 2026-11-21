@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ห้องค้า GPU - ภาพรวมและเปรียบเทียบ</title>
+<meta name="description" content="ติดตามแนวโน้มราคาเช่า GPU คลาวด์ในรูปแบบห้องค้า เป็นตัวชี้วัดความต้องการ AI compute">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f6f7f9; --surface:#ffffff; --sunk:#eef0f4; --fg:#1a1f2b; --muted:#5c6577; --line:#dde1e8;
+  --accent:#1f5fbf; --up:#157a4a; --down:#b42318; --warn:#a35a00;
+  --c2:#7a4fc4; --c3:#0e8486; --c4:#c0620f; --c5:#bb3b75;
+  --glow:rgba(31,95,191,.18);
+  --rg-demandUp:var(--up); --rg-tightening:#4d8f2a; --rg-mixed:var(--muted); --rg-loosening:#d9480f; --rg-demandDown:var(--down);
+  --tp-demandUp:#5cc994; --tp-tightening:#a3d977; --tp-mixed:#98a1b3; --tp-loosening:#ff8a4c; --tp-demandDown:#f2635e; --tp-warn:#e8a94f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#11141b; --surface:#181c25; --sunk:#1f2430; --fg:#e6e9f0; --muted:#98a1b3; --line:#2c3240;
+    --accent:#7aa7f0; --up:#5cc994; --down:#f2635e; --warn:#e8a94f;
+    --c2:#b69cf2; --c3:#4fd0c4; --c4:#f0a05e; --c5:#ee86b4;
+    --glow:rgba(122,167,240,.22);
+    --rg-demandUp:var(--up); --rg-tightening:#a3d977; --rg-mixed:var(--muted); --rg-loosening:#ff8a4c; --rg-demandDown:var(--down);
+    --tp-demandUp:#157a4a; --tp-tightening:#4d8f2a; --tp-mixed:#5c6577; --tp-loosening:#d9480f; --tp-demandDown:#b42318; --tp-warn:#a35a00;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#11141b; --surface:#181c25; --sunk:#1f2430; --fg:#e6e9f0; --muted:#98a1b3; --line:#2c3240;
+  --accent:#7aa7f0; --up:#5cc994; --down:#f2635e; --warn:#e8a94f;
+  --c2:#b69cf2; --c3:#4fd0c4; --c4:#f0a05e; --c5:#ee86b4;
+  --glow:rgba(122,167,240,.22);
+  --rg-demandUp:var(--up); --rg-tightening:#a3d977; --rg-mixed:var(--muted); --rg-loosening:#ff8a4c; --rg-demandDown:var(--down);
+  --tp-demandUp:#157a4a; --tp-tightening:#4d8f2a; --tp-mixed:#5c6577; --tp-loosening:#d9480f; --tp-demandDown:#b42318; --tp-warn:#a35a00;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:15px; line-height:1.55;
+  background-image:
+    linear-gradient(color-mix(in srgb,var(--line) 38%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--line) 38%,transparent) 1px,transparent 1px);
+  background-size:32px 32px; background-attachment:fixed;
+  overflow-x:hidden;
+}
+.mono,.num{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-variant-numeric:tabular-nums}
+.nw{white-space:nowrap}
+.ln{display:block}
+button{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+.desk{max-width:1320px; margin:0 auto; padding:0 16px 40px}
+
+/* header */
+.top{display:flex; flex-wrap:wrap; gap:14px 24px; align-items:flex-end; justify-content:space-between; padding:22px 0 14px}
+.top .tag{font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.14em; color:var(--accent); display:flex; align-items:center; gap:8px}
+.live{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 var(--up);animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--up) 55%,transparent)}70%,100%{box-shadow:0 0 0 7px transparent}}
+h1{margin:4px 0 4px; font-size:clamp(24px,3.4vw,34px); font-weight:600; letter-spacing:-.01em; line-height:1.2}
+.sub{margin:0; color:var(--muted); max-width:62ch}
+.top-r{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.asof{font-size:12px; color:var(--muted); border:1px solid var(--line); background:var(--surface); padding:6px 10px; border-radius:6px}
+.asof b{color:var(--fg); font-weight:500}
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:6px; padding:6px 11px; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn[aria-pressed="true"]{border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.legend-note{font-size:12.5px;color:var(--muted);margin:0 0 12px;display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.legend-note span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.legend-note .ln{display:block;flex-basis:100%;white-space:normal}
+.gloss{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:13px}
+.gloss summary{cursor:pointer;font-weight:600;color:var(--fg)}
+.gloss dl{margin:10px 0 2px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 20px}
+.gloss dt{font-weight:600;color:var(--accent);white-space:nowrap}
+.gloss dd{margin:2px 0 0;color:var(--muted);line-height:1.6}
+.mguide h4{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.mguide dl{margin-top:6px}
+.mtag{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;font-weight:500;color:var(--muted);white-space:nowrap;vertical-align:1px}
+.mnote{margin:12px 0 2px;color:var(--muted);font-size:12px;line-height:1.6}
+
+/* icons */
+.ic{width:12px;height:12px;flex:none;display:inline-block;vertical-align:-1px}
+.ar{width:9px;height:9px;flex:none;display:inline-block;margin-right:3px}
+.ar.up{fill:var(--up)} .ar.down{fill:var(--down)} .ar.flat{stroke:var(--muted);fill:none}
+.ic-reg{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ic-warn{fill:var(--warn)}
+[data-tip]{cursor:help}
+
+@media (prefers-reduced-motion: reduce){
+  .live{animation:none}
+}
+
+/* panel */
+.panel{margin-top:22px}
+.ph{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 12px; padding:0 0 10px; border-bottom:1px solid var(--line); margin-bottom:12px}
+.ph .code{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--bg); background:var(--accent); padding:1px 6px; border-radius:3px; letter-spacing:.06em; align-self:center}
+.ph h2{margin:0; font-size:18px; font-weight:600; white-space:nowrap}
+.ph .hint{color:var(--muted); font-size:13px; flex:1 1 260px}
+
+/* cards */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(262px,1fr)); gap:12px}
+.card{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 14px 12px; cursor:pointer; transition:border-color .15s, box-shadow .15s, transform .15s; overflow:hidden}
+.card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--line)}
+.card.u::before{background:var(--up)} .card.d::before{background:var(--down)}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.card[aria-pressed="true"]{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 6px 24px var(--glow)}
+.c-head{display:flex; align-items:center; gap:8px; flex-wrap:nowrap}
+.c-name{font-weight:600; font-size:15px; white-space:nowrap}
+.c-vram{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); border:1px solid var(--line); padding:0 5px; border-radius:3px; white-space:nowrap}
+.c-head .sp{flex:1}
+.spark{display:block; width:100%; height:auto; margin:6px 0 2px; overflow:visible}
+.spark .area{fill:color-mix(in srgb,var(--accent) 12%,transparent)}
+.spark .od{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.spark .sp2{fill:none;stroke:var(--c2);stroke-width:1.2;opacity:.45;stroke-dasharray:3 2}
+.spark .dot{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.c-price{display:flex; align-items:baseline; gap:4px; margin:2px 0 8px}
+.c-price .big{font-family:"JetBrains Mono",monospace; font-weight:700; font-size:30px; letter-spacing:-.03em; line-height:1.1; font-variant-numeric:tabular-nums}
+.c-price .cur{font-family:"JetBrains Mono",monospace; color:var(--muted); font-size:16px}
+.c-price .unit{font-size:12px; color:var(--muted); white-space:nowrap}
+.c-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:6px 8px; margin:0; padding-top:8px; border-top:1px dashed var(--line)}
+.c-stats dt{font-size:11px; color:var(--muted); white-space:nowrap}
+.c-stats dd{margin:1px 0 0; font-family:"JetBrains Mono",monospace; font-size:13px; font-variant-numeric:tabular-nums; display:flex; align-items:center; white-space:nowrap}
+.gauge{display:inline-block; width:100%; height:3px; background:var(--sunk); border-radius:2px; margin-top:4px; position:relative; overflow:hidden}
+.gauge i{position:absolute; left:0; top:0; bottom:0; background:var(--accent); border-radius:2px}
+.c-foot{display:flex; align-items:center; gap:6px; margin-top:9px; font-size:12px; color:var(--muted); white-space:nowrap}
+.rg-demandUp{color:var(--rg-demandUp)} .rg-tightening{color:var(--rg-tightening)} .rg-mixed{color:var(--rg-mixed)} .rg-loosening{color:var(--rg-loosening)} .rg-demandDown{color:var(--rg-demandDown)}
+.reg{display:inline-flex; align-items:center; gap:5px; white-space:nowrap}
+.ew{display:inline-flex; align-items:center; gap:3px; white-space:nowrap; font-size:11px; line-height:1; padding:3px 7px 3px 5px; border:1px solid var(--warn); border-radius:999px; color:var(--warn); background:color-mix(in srgb,var(--warn) 16%,transparent); font-family:"IBM Plex Sans Thai",sans-serif; font-weight:600; vertical-align:middle}
+.ic-ew{fill:currentColor !important}
+.card.ewc:not([aria-pressed="true"]){border-color:color-mix(in srgb,var(--warn) 65%,var(--line)); background:color-mix(in srgb,var(--warn) 7%,var(--surface))}
+.ewcap{color:var(--warn); font-weight:600}
+.ic-ew{width:10px; height:10px; flex:none; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
+.c-head .ew{margin-left:0}
+.c-head{flex-wrap:wrap; row-gap:4px}
+.analysis .ewg{margin-top:8px; padding:6px 10px; border-left:3px solid var(--warn); border-radius:0 6px 6px 0; background:color-mix(in srgb,var(--warn) 9%,transparent); color:var(--fg)}
+.analysis .ewg .ewh{display:block; font-weight:600; color:var(--warn)}
+.analysis p.ewg{margin-top:6px}
+
+/* detail */
+.detail{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px}
+.d-head{display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 20px; justify-content:space-between}
+.d-title{margin:0; font-size:22px; font-weight:600; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.d-meta{color:var(--muted); font-size:13px; margin-top:2px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{border:1px solid var(--line); background:var(--sunk); border-radius:999px; padding:3px 11px; font-size:12.5px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:6px}
+.chip:hover{border-color:var(--accent)}
+.chip[data-focus][aria-pressed="true"]{background:var(--accent); color:var(--bg); border-color:var(--accent)}
+.chip .sw{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chip.off{opacity:.5}
+.chip.off .sw{background:var(--line)!important}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(138px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; margin:14px 0}
+.stat{background:var(--surface); padding:8px 10px}
+.stat .l{font-size:11.5px; color:var(--muted); white-space:nowrap}
+.stat .v{font-family:"JetBrains Mono",monospace; font-size:17px; font-weight:500; display:flex; align-items:center; gap:2px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.stat .n{font-size:11px; color:var(--muted); line-height:1.35; margin-top:1px}
+.chartbox{position:relative; width:100%}
+.chartbox svg{display:block; width:100%; height:auto; touch-action:pan-y; user-select:none}
+.chartbox svg:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.gl{stroke:var(--line); stroke-width:1; shape-rendering:crispEdges}
+.axt{fill:var(--muted); font-family:"JetBrains Mono",monospace; font-size:10.5px}
+.ln{fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+.bar{fill:color-mix(in srgb,var(--accent) 15%,transparent)}
+.refl{stroke:var(--muted); stroke-dasharray:4 4; stroke-width:1; opacity:.7}
+.xh{stroke:var(--fg); stroke-width:1; opacity:.45; pointer-events:none}
+.xd{stroke:var(--surface); stroke-width:2; pointer-events:none}
+.note{font-size:12.5px; color:var(--muted); margin:8px 0 0}
+details.mn{margin-top:10px; font-size:12.5px; color:var(--muted)}
+details.mn summary{cursor:pointer; white-space:nowrap}
+details.mn p{margin:6px 0 0}
+
+/* heatmap */
+.hm-bar{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; margin-bottom:10px}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden}
+.seg button{border:0; background:var(--surface); padding:5px 11px; cursor:pointer; font-size:12.5px; border-right:1px solid var(--line); white-space:nowrap}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--bg)}
+.scale{display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--muted)}
+.scale i{display:inline-block; width:90px; height:10px; border-radius:2px; border:1px solid var(--line); background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 52%,transparent))}
+.scroll{overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); max-width:100%}
+table.hm{border-collapse:separate; border-spacing:0; width:100%; font-size:12px}
+.hm th,.hm td{padding:0; text-align:center; border-bottom:1px solid var(--line); border-right:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+.hm thead th{font-weight:400; color:var(--muted); font-size:10.5px; padding:6px 2px; background:var(--sunk); white-space:nowrap; line-height:1.25; min-width:46px}
+.hm thead th b{display:block; font-family:"JetBrains Mono",monospace; font-weight:500; color:var(--fg); font-size:12px}
+.hm tbody tr:last-child td,.hm tbody tr:last-child th{border-bottom:0}
+.hm .rh{position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; padding:0 12px; font-weight:600; font-size:13px; white-space:nowrap; min-width:112px; cursor:pointer; border-right:1px solid var(--line)}
+.hm thead .rh{background:var(--sunk); z-index:2; cursor:default; font-weight:400; font-size:11px; color:var(--muted)}
+.hm tr.sel .rh{color:var(--accent); box-shadow:inset 3px 0 0 var(--accent)}
+.hm td.c{height:34px; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; background:color-mix(in srgb,var(--accent) var(--a,0%),transparent); cursor:default; position:relative}
+.hm td.c span{display:inline-flex; align-items:center; justify-content:center; white-space:nowrap}
+.hm td.c:focus-visible{outline:2px solid var(--accent); outline-offset:-2px; z-index:3}
+.hm td.c:hover{box-shadow:inset 0 0 0 1px var(--fg)}
+.hm td.cum{font-family:"JetBrains Mono",monospace; background:var(--sunk); padding:0 10px; white-space:nowrap; min-width:84px; font-variant-numeric:tabular-nums}
+.hm thead th.cum{min-width:84px}
+
+/* stocks */
+.two{display:grid; grid-template-columns:1fr; gap:12px}
+.stock-sum{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:8px; margin:12px 0 0}
+.ss{border:1px solid var(--line); border-radius:6px; padding:6px 10px; background:var(--sunk)}
+.ss .l{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); white-space:nowrap}
+.ss .l i{width:10px;height:3px;border-radius:2px;display:inline-block}
+.ss .v{font-family:"JetBrains Mono",monospace; font-size:15px; font-variant-numeric:tabular-nums; display:flex; align-items:center; white-space:nowrap}
+.ss .v small{color:var(--muted); font-size:11px; margin-left:6px}
+
+/* daily */
+.snap-intro{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; background:var(--sunk); border:1px dashed var(--line); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:12px}
+.slots{display:inline-flex; gap:4px; align-items:center}
+.slots i{width:12px;height:12px;border:1px dashed var(--muted);border-radius:2px;display:inline-block;opacity:.6}
+.slots i.f{background:var(--accent);border:1px solid var(--accent);opacity:1}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:12px}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px}
+.tile .l{font-size:12px; color:var(--muted); white-space:nowrap}
+.tile .v{font-family:"JetBrains Mono",monospace; font-size:24px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.tile .n{font-size:11.5px; color:var(--muted)}
+table.dt{border-collapse:collapse; width:100%; font-size:13px; min-width:560px}
+.dt th,.dt td{padding:8px 12px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap}
+.dt th{font-weight:400; color:var(--muted); font-size:12px; background:var(--sunk)}
+.dt th:first-child,.dt td:first-child{text-align:left; font-weight:600; position:sticky; left:0; background:var(--surface)}
+.dt th:first-child{background:var(--sunk)}
+.dt td{font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums}
+.dt td:first-child{font-family:"IBM Plex Sans Thai",sans-serif}
+.dt tr.sel td{background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.dt tr:last-child td{border-bottom:0}
+.dt small{color:var(--muted); font-size:11px}
+
+/* tip */
+#tip{position:fixed; z-index:9999; pointer-events:none; background:var(--fg); color:var(--bg); padding:7px 10px; border-radius:6px; font-size:12.5px; line-height:1.45; max-width:min(300px,calc(100vw - 20px)); opacity:0; transition:opacity .1s; white-space:pre-line; box-shadow:0 6px 22px rgba(0,0,0,.28)}
+#tip.on{opacity:1}
+#tip .tl{font-weight:700}
+#tip .th{font-family:"JetBrains Mono",monospace; font-size:11.5px; opacity:.8; margin-bottom:3px; white-space:nowrap}
+#tip .tr{display:flex; align-items:center; gap:7px; white-space:nowrap}
+#tip .tr i{width:9px;height:3px;border-radius:2px;display:inline-block}
+#tip .tr i.b{height:9px;width:9px;opacity:.6}
+#tip .tr span{flex:1; padding-right:10px}
+#tip .tr b{font-family:"JetBrains Mono",monospace; font-weight:500}
+
+/* footer / errors */
+.err{margin:30px 0; padding:18px 20px; border:1px solid var(--down); background:color-mix(in srgb,var(--down) 8%,var(--surface)); border-radius:8px}
+.err h2{margin:0 0 6px; font-size:17px; color:var(--down)}
+.err p{margin:4px 0; color:var(--muted)}
+.load{padding:60px 0; text-align:center; color:var(--muted)}
+footer{margin-top:36px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted)}
+footer p{margin:4px 0}
+footer .row{display:flex; flex-wrap:wrap; gap:4px 18px}
+footer .row span{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (min-width:1100px){ .two{grid-template-columns:1fr} }
+@media (max-width:520px){
+  .desk{padding:0 12px 32px}
+  .detail{padding:12px}
+  .c-price .big{font-size:28px}
+}
+
+/* ===== combined additions ===== */
+:root{
+  --c-b200:#0072B2; --c-h200:#D55E00; --c-h100:#009E73; --c-a100:#CC79A7;
+  --c-l40s:#B58F00; --c-rtx-5090:#56B4E9; --c-rtx-4090:#7B5CD6; --c-mi300x:#4a4f5c;
+  --c-NVDA:#9a6b00; --c-CRWV:#5d6b82; --c-NBIS:#a0522d; --c-ORCL:#3d7a78;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --c-b200:#4C9BE8; --c-h200:#FF8C42; --c-h100:#2FCB9D; --c-a100:#E59BC4;
+    --c-l40s:#F0E442; --c-rtx-5090:#8FD3FF; --c-rtx-4090:#A68BFF; --c-mi300x:#B8BFCC;
+    --c-NVDA:#d9b24a; --c-CRWV:#aab6cc; --c-NBIS:#e0956b; --c-ORCL:#7cc1bd;
+  }
+}
+:root[data-theme="dark"]{
+  --c-b200:#4C9BE8; --c-h200:#FF8C42; --c-h100:#2FCB9D; --c-a100:#E59BC4;
+  --c-l40s:#F0E442; --c-rtx-5090:#8FD3FF; --c-rtx-4090:#A68BFF; --c-mi300x:#B8BFCC;
+  --c-NVDA:#d9b24a; --c-CRWV:#aab6cc; --c-NBIS:#e0956b; --c-ORCL:#7cc1bd;
+}
+[hidden]{display:none!important}
+.nb{white-space:nowrap}
+
+/* tabs */
+.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin:0 0 14px; overflow-x:auto}
+.tabs button{border:0; background:transparent; padding:9px 18px 10px; cursor:pointer; font-size:15px; font-weight:500; color:var(--muted); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; display:inline-flex; align-items:center; gap:8px}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent); background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.tabs svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round}
+[role="tabpanel"]:focus-visible{outline:2px solid var(--accent); outline-offset:4px}
+
+/* brief: quadrant map */
+.brief{margin-bottom:16px; display:grid; grid-template-columns:28fr 30fr 42fr; gap:16px; align-items:stretch}
+.brief .bk-head,.brief .bk-card{background:var(--surface); border:1px solid var(--line); border-radius:8px; min-width:0}
+.brief .bk-head{grid-column:1/-1; border-left:3px solid var(--accent); padding:14px 18px 12px}
+.brief .tg .ln{flex-basis:100%}
+.brief .tg{font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.1em; color:var(--muted); display:flex; align-items:center; gap:7px; flex-wrap:wrap}
+.bk-hrow{display:flex; flex-wrap:wrap; align-items:center; gap:6px 28px; margin-top:6px}
+.bk-num{font-family:"JetBrains Mono",monospace; font-weight:700; font-size:44px; line-height:1.1; letter-spacing:-.03em; color:var(--accent); white-space:nowrap}
+.bk-ht{min-width:0}
+.bk-ht h2{margin:0; font-size:clamp(17px,2.2vw,21px); font-weight:600; line-height:1.35}
+.bk-ht p{margin:2px 0 0; color:var(--muted); font-size:13px}
+.bk-num.neg{color:var(--down)}
+.bk-chips{display:flex; flex-wrap:wrap; gap:5px 6px; margin-top:8px}
+.bk-chip{display:inline-flex; align-items:center; gap:4px; white-space:nowrap; font-size:12px; line-height:1; padding:4px 9px 4px 7px; border:1px solid currentColor; border-radius:999px; font-weight:600; background:color-mix(in srgb,currentColor 11%,transparent)}
+.bk-chip.ew-c{color:var(--warn)}
+.bk-strip{flex:1 1 240px; min-width:200px; max-width:420px}
+.bk-card{padding:12px 14px 12px; display:flex; flex-direction:column; gap:6px}
+.bk-card h3{margin:0; font-size:14px; font-weight:600; line-height:1.4}
+.bk-wn .ln,.bk-card .cap .ln{display:block}
+.bk-card .cap{margin:0; color:var(--muted); font-size:12.5px; line-height:1.5}
+.bk-card svg.bk{display:block; width:100%; height:auto; overflow:visible}
+.bk text{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-variant-numeric:tabular-nums}
+.bk text.th{font-family:"IBM Plex Sans Thai",system-ui,sans-serif}
+.bk [data-tip]{cursor:default; outline:none}
+.bk [data-tip]:focus-visible .fo{stroke:var(--accent); stroke-width:2; fill:none}
+.bk-med{display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:2px; font-size:12.5px}
+.bk-med>span{white-space:nowrap; display:inline-flex; align-items:center}
+.bk-med b{font-family:"JetBrains Mono",monospace; font-weight:600; margin-left:6px; display:inline-flex; align-items:center}
+.bk-med .l{color:var(--muted)}
+.bk-wrow{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line)}
+.bk-wl{font-size:12.5px; color:var(--muted)}
+.bk-seg{display:inline-flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--sunk)}
+.bk-seg button{border:0; background:transparent; padding:6px 13px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; white-space:nowrap}
+.bk-seg button+button{border-left:1px solid var(--line)}
+.bk-seg button:hover{color:var(--fg)}
+.bk-seg button[aria-pressed="true"]{background:var(--accent); color:var(--bg); font-weight:600}
+.bk-wn{font-size:12.5px; color:var(--muted); min-width:0}
+.bk-chip{cursor:pointer; font-family:inherit}
+.bk-chip[aria-expanded="true"]{background:color-mix(in srgb,currentColor 24%,transparent); box-shadow:0 0 0 2px color-mix(in srgb,currentColor 38%,transparent)}
+.bk-pn{margin-top:8px; border:1px solid var(--line); background:var(--sunk); border-radius:8px; padding:8px 12px 6px; font-size:13px}
+.bk-pn[hidden]{display:none}
+.bk-pt{font-weight:700; padding-bottom:4px}
+.bk-pr{display:flex; flex-wrap:wrap; align-items:center; gap:3px 14px; padding:5px 0; border-top:1px solid var(--line)}
+.bk-pr .nm{font-weight:700; white-space:nowrap; min-width:64px}
+.bk-pr .nb{display:inline-flex; align-items:center; gap:5px}
+.bk-pr .ew{font-size:11px}
+.bk-an{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px 28px}
+.bk-ah{margin:0 0 3px; font-size:11px; font-weight:500; letter-spacing:.06em; color:var(--muted)}
+.bk-ag .ln{font-size:13px; line-height:1.6}
+.bk-an .dirx,.bk-pn .dirx{display:inline-flex; align-items:center; font-family:"JetBrains Mono",monospace; white-space:nowrap; font-variant-numeric:tabular-nums}
+@media (max-width:700px){ .bk-seg{width:100%} .bk-seg button{flex:1; padding:7px 4px} }
+@media (max-width:1080px){
+  .brief{grid-template-columns:1fr 1fr}
+  .brief .bk-c3{grid-column:1/-1}
+}
+@media (max-width:700px){
+  .brief{grid-template-columns:1fr}
+  .brief .bk-c3{order:2} .brief .bk-c2{order:3} .brief .bk-c1{order:4}
+}
+
+/* analysis in detail */
+.detail{container-type:inline-size}
+.analysis{margin:12px 0 0; padding:10px 14px; border-left:3px solid var(--accent); background:color-mix(in srgb,var(--accent) 7%,var(--sunk)); border-radius:0 6px 6px 0; font-size:14px; line-height:1.75}
+.analysis .tg{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.1em; color:var(--accent); display:block; margin-bottom:2px}
+.analysis p{margin:0}
+.analysis p + p{margin-top:4px; color:var(--muted); font-size:13px}
+.analysis .cav{display:flex; gap:8px; align-items:flex-start; color:var(--fg)}
+.analysis .cav .ic{margin-top:6px}
+.analysis .dirx{display:inline-flex; align-items:center; font-family:"JetBrains Mono",monospace; white-space:nowrap; font-variant-numeric:tabular-nums}
+.analysis .go{margin-top:8px}
+.stats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; background:none; border:0; border-radius:0; overflow:visible; margin:12px 0 14px}
+.stat{border:1px solid var(--line); border-radius:6px; background:var(--sunk); min-width:0}
+@container (min-width:640px){ .stats{grid-template-columns:repeat(4,minmax(0,1fr))} }
+
+/* compare */
+#panel-compare{container-type:inline-size}
+.cmp{display:grid; grid-template-columns:minmax(0,1fr); gap:16px}
+@container (min-width:900px){
+  .cmp{grid-template-columns:272px minmax(0,1fr); align-items:start}
+  .rail{position:sticky; top:12px}
+}
+.rail{background:var(--surface); border:1px solid var(--line); border-radius:8px}
+.rail > summary{list-style:none; cursor:pointer; padding:10px 14px; display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px}
+.rail > summary::-webkit-details-marker{display:none}
+.rail > summary .sum{flex:1; font-weight:400; font-size:12px; color:var(--muted); font-family:"JetBrains Mono",monospace; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rail > summary svg{width:12px; height:12px; stroke:var(--muted); fill:none; stroke-width:2; transition:transform .15s}
+.rail[open] > summary svg{transform:rotate(180deg)}
+.rb{padding:2px 14px 14px}
+.rsec{padding:10px 0; border-top:1px dashed var(--line)}
+.rsec:first-child{border-top:0}
+.rsec h3{margin:0 0 7px; font-size:11.5px; font-weight:500; color:var(--muted); display:flex; justify-content:space-between; gap:8px; align-items:baseline; letter-spacing:.02em}
+.rsec h3 .t{white-space:nowrap}
+.lnk{border:0; background:none; color:var(--accent); cursor:pointer; padding:0; font-size:12px; white-space:nowrap; text-decoration:underline; text-underline-offset:2px}
+.chip.cm[aria-pressed="true"]{border-color:var(--chipc); background:color-mix(in srgb,var(--chipc) 15%,var(--surface))}
+.chip.cm[aria-pressed="false"] .sw{background:var(--line)!important}
+.chip.cm[aria-pressed="false"]{color:var(--muted)}
+.chip.cs{--chipc:var(--c-ink,var(--fg))}
+.chip:disabled{opacity:.38; cursor:not-allowed}
+.chip .sw{width:14px; height:3px}
+.mopts{display:grid; gap:4px}
+.mopt{border:1px solid var(--line); background:var(--sunk); border-radius:6px; padding:5px 10px; text-align:left; cursor:pointer; font-size:12.5px; line-height:1.4}
+.mopt:hover{border-color:var(--accent)}
+.mopt[aria-pressed="true"]{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 13%,var(--surface)); color:var(--accent); font-weight:500; box-shadow:inset 3px 0 0 var(--accent)}
+.rsec .note{margin:7px 0 0; font-size:12px}
+.lgrow{display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 8px}
+.lgi{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; white-space:nowrap}
+.lgi svg{width:16px; height:6px; flex:none}
+.lgi b{font-family:"JetBrains Mono",monospace; font-weight:500; font-variant-numeric:tabular-nums}
+.lgi .dirx{display:inline-flex; align-items:center; font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--muted)}
+.hints{display:flex; flex-direction:column; gap:2px; font-size:12px; color:var(--muted); margin-top:6px}
+.hints .warnt{color:var(--warn)}
+.empty{padding:50px 16px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:8px}
+table.ct{border-collapse:separate; border-spacing:0; width:100%; font-size:13px; min-width:1180px}
+.ct th,.ct td{padding:7px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap}
+.ct thead th{background:var(--sunk); font-weight:400; font-size:11.5px; color:var(--muted); vertical-align:bottom; line-height:1.3; padding:0}
+.ct thead tr.grp th{text-align:center; font-size:10.5px; letter-spacing:.06em; padding:5px 8px; border-bottom:1px solid var(--line); border-left:1px solid var(--line)}
+.ct thead th button{all:unset; box-sizing:border-box; display:flex; width:100%; justify-content:flex-end; align-items:center; gap:5px; padding:7px 10px; cursor:pointer; text-align:right; font-size:11.5px; color:var(--muted); white-space:nowrap}
+.ct thead th button:hover{color:var(--fg)}
+.ct thead th button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.ct thead th.l button{justify-content:flex-start; text-align:left}
+.ct thead th[aria-sort] button{color:var(--accent); font-weight:500}
+.ct thead th .so{width:8px; height:10px; fill:currentColor; opacity:.5; flex:none}
+.ct thead th[aria-sort] .so{opacity:1}
+.ct td{font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums}
+.ct td:first-child,.ct th:first-child{text-align:left; position:sticky; left:0; background:var(--surface); z-index:1; font-family:"IBM Plex Sans Thai",sans-serif; border-right:1px solid var(--line)}
+.ct thead th:first-child{background:var(--sunk); z-index:2}
+.ct tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--mc)}
+.ct tr:last-child td{border-bottom:0}
+.ct .nm{all:unset; box-sizing:border-box; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:13px; white-space:nowrap}
+.ct .nm:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.ct .nm i{width:12px; height:3px; border-radius:2px; background:var(--mc); display:inline-block}
+.ct tr:not(.sel) .nm i{background:var(--line)}
+.ct .shade{display:inline-flex; align-items:center; padding:2px 7px; border-radius:4px}
+.ct .dim{color:var(--muted)}
+.ct .cf{display:inline-flex; align-items:center; gap:4px; justify-content:flex-end}
+.ct td.sep,.ct th.sep{border-left:1px solid var(--line)}
+@media (max-width:520px){ .tabs button{padding:9px 14px 10px} }
+</style>
+</head>
+<body>
+<script src="https://caketiknarak-hash.github.io/momentum-board/nav.js" data-current="gpu"></script>
+<div class="desk" id="desk">
+  <header class="top">
+    <div>
+      <div class="tag"><span class="live" aria-hidden="true"></span>GPU RENTAL DESK</div>
+      <h1>ห้องค้า <span class="nw">ราคาเช่า GPU</span></h1>
+      <p class="sub"><span class="ln">ติดตามแนวโน้มราคาเช่า GPU บนคลาวด์</span><span class="ln">เป็นสัญญาณดูความต้องการ AI compute</span><span class="ln">เป็นข้อมูลล้วน <span style="white-space:nowrap">ไม่ใช่คำแนะนำซื้อขาย</span></span></p>
+    </div>
+    <div class="top-r">
+      <span class="asof mono" id="asof">กำลังโหลดข้อมูล</span>
+      <button class="btn" id="themeBtn" type="button" aria-label="สลับธีมสี">
+        <svg class="ic" viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>
+        <span id="themeLbl">ธีม: อัตโนมัติ</span>
+      </button>
+    </div>
+  </header>
+  <div class="tabs" role="tablist" aria-label="มุมมอง">
+    <button type="button" role="tab" id="tab-overview" data-tab="overview" aria-controls="panel-overview" aria-selected="true"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 12V8M5.5 12V3M9.5 12V6M13 12H1"/></svg>ภาพรวม</button>
+    <button type="button" role="tab" id="tab-compare" data-tab="compare" aria-controls="panel-compare" aria-selected="false" tabindex="-1"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 10l3-4 3 2.5 4-5.5"/><path d="M1.5 12.5h11"/></svg>เปรียบเทียบ</button>
+  </div>
+  <p class="legend-note" id="legendNote" hidden>
+    <span><svg class="ar up" viewBox="0 0 10 10"><path d="M5 1.5 9 8.5H1z"/></svg>ราคาขึ้น</span>
+    <span><svg class="ar down" viewBox="0 0 10 10"><path d="M5 8.5 1 1.5h8z"/></svg>ราคาลง</span>
+    <span class="ln"><span class="nb">สีเขียว/แดงที่ตัวเลข</span> <span class="nb">=</span> <span class="nb">ทิศทางราคา</span></span>
+    <span class="ln"><span class="nb">สีของป้ายสภาพอุปทาน</span> <span class="nb">=</span> <span class="nb">ดีไปแย่</span> <span class="nb">(เขียว → ส้ม → แดง)</span></span>
+    <span class="ln"><span class="nb">สีส้มอำพัน</span> <span class="nb">=</span> <span class="nb">เริ่มเปลี่ยน</span></span>
+    <span class="ln">ความเข้มสีน้ำเงิน = ขนาดของการเปลี่ยนแปลง</span>
+  </p>
+  <details class="gloss" id="gloss" open>
+    <summary>คำศัพท์ในหน้านี้</summary>
+    <dl>
+      <div><dt>แพ็กเกจเช่า</dt><dd><span class="ln"><span class="nb">ราคาเช่าหนึ่งแบบที่บริษัทหนึ่งประกาศไว้</span></span><span class="ln"><span class="nb">บริษัทเดียวมีได้หลายแพ็กเกจ</span></span><span class="ln"><span class="nb">เช่น</span> <span class="nb">ขาย</span> <span class="nb">H100</span> <span class="nb">แบบเช่า</span> <span class="nb">1</span> <span class="nb">การ์ด</span> <span class="nb">กับแบบเช่า</span> <span class="nb">8</span> <span class="nb">การ์ด</span> <span class="nb">=</span> <span class="nb">2</span> <span class="nb">แพ็กเกจ</span></span><span class="ln"><span class="nb">ตัวเลขนี้นับจำนวนแบบที่วางขาย</span> <span class="nb">ไม่ได้นับจำนวนการ์ดจริง</span></span><span class="ln"><span class="nb">ถ้าบริษัทเพิ่มการ์ดอีกพันใบในแพ็กเกจเดิม</span> <span class="nb">ตัวเลขนี้ไม่เปลี่ยน</span></span></dd></div>
+      <div><dt>ผู้ให้บริการ</dt><dd><span class="ln"><span class="nb">จำนวนบริษัทที่มีรุ่นนี้ให้เช่า</span></span><span class="ln"><span class="nb">เช่น</span> <span class="nb">RunPod,</span> <span class="nb">Lambda,</span> <span class="nb">AWS</span></span><span class="ln"><span class="nb">นับบริษัทละ</span> <span class="nb">1</span></span></dd></div>
+      <div><dt>แพ็กเกจเช่าเพิ่ม/ลด</dt><dd><span class="ln"><span class="nb">ใช้แทนว่ามีของในตลาดมากขึ้นหรือน้อยลง</span></span><span class="ln"><span class="nb">เป็นตัวแทนคร่าว</span> <span class="nb">ๆ</span></span><span class="ln"><span class="nb">เพราะไม่มีแหล่งไหนเปิดเผยจำนวนการ์ดจริงทั้งตลาด</span></span></dd></div>
+      <div><dt>เครื่อง (Vast.ai)</dt><dd><span class="ln"><span class="nb">เฉพาะข้อมูลรายวันจาก</span> <span class="nb">Vast.ai</span></span><span class="ln"><span class="nb">จำนวนเครื่องที่ประกาศให้เช่าและว่างอยู่ตอนเก็บข้อมูล</span> <span class="nb">และจำนวน</span> <span class="nb">GPU</span> <span class="nb">ในเครื่องเหล่านั้น</span></span><span class="ln"><span class="nb">อันนี้ใกล้เคียงของจริงกว่า</span></span><span class="ln"><span class="nb">แต่เป็นแค่ตลาดเดียว</span></span></dd></div>
+      <div><dt>on-demand / spot</dt><dd><span class="ln"><span class="nb">on-demand</span> <span class="nb">=</span> <span class="nb">เช่าแบบปกติ</span> <span class="nb">ไม่โดนตัดกลางคัน</span></span><span class="ln"><span class="nb">spot</span> <span class="nb">=</span> <span class="nb">ถูกกว่า</span> <span class="nb">แต่เจ้าของเรียกเครื่องคืนได้ทุกเมื่อ</span></span></dd></div>
+      <div><dt>เริ่มเปลี่ยน</dt><dd><span class="ln"><span class="nb">ภาพ</span> <span class="nb">4</span> <span class="nb">สัปดาห์ไม่ตรงกับภาพ</span> <span class="nb">13</span> <span class="nb">สัปดาห์</span> <span class="nb">และเป็นแบบนี้</span> <span class="nb">2</span> <span class="nb">สัปดาห์ติด</span></span><span class="ln"><span class="nb">ไม่นับกรณีที่ภาพ</span> <span class="nb">4</span> <span class="nb">สัปดาห์เป็น</span> <span class="nb">‘ยังไม่ชัด’</span></span><span class="ln"><span class="nb">เป็นสัญญาณล่วงหน้า</span> <span class="nb">ยังไม่ใช่การยืนยัน</span></span><span class="ln"><span class="nb">ย้อนหลัง</span> <span class="nb">26</span> <span class="nb">สัปดาห์</span> <span class="nb">ราวครึ่งหนึ่งที่ภาพ</span> <span class="nb">13</span> <span class="nb">สัปดาห์เปลี่ยนตามภายใน</span> <span class="nb">8</span> <span class="nb">สัปดาห์</span></span></dd></div>
+      <div><dt>ส่วนลด spot</dt><dd><span class="ln"><span class="nb">spot</span> <span class="nb">ถูกกว่า</span> <span class="nb">on-demand</span> <span class="nb">กี่เปอร์เซ็นต์</span></span><span class="ln"><span class="nb">ส่วนลดแคบลง</span> <span class="nb">=</span> <span class="nb">แม้แต่เครื่องราคาถูกก็มีคนแย่งเช่า</span></span></dd></div>
+    </dl>
+  </details>
+  <details class="gloss mguide" id="mguide">
+    <summary>รู้จักแต่ละรุ่น GPU</summary>
+    <h4>พื้นฐาน</h4>
+    <dl>
+      <div><dt>ตัวอักษรหน้าชื่อ</dt><dd><span class="ln"><span class="nb">= รุ่นสถาปัตยกรรมของ</span> <span class="nb">NVIDIA</span></span><span class="ln"><span class="nb">A = Ampere</span> <span class="nb">(ปี 2020)</span></span><span class="ln"><span class="nb">H = Hopper</span> <span class="nb">(ปี 2022–2024)</span></span><span class="ln"><span class="nb">B = Blackwell</span> <span class="nb">(ปี 2024–2025)</span> <span class="nb">ใหม่สุดในรายการ</span></span></dd></div>
+      <div><dt>หน่วยความจำ (GB)</dt><dd><span class="ln"><span class="nb">ยิ่งมาก</span> <span class="nb">ยิ่งใส่ AI ตัวใหญ่ได้ในการ์ดเดียว</span></span><span class="ln"><span class="nb">รุ่นใหม่มักมีมากกว่า</span> <span class="nb">และเร็วกว่า</span></span></dd></div>
+      <div><dt>เทรน กับ รัน</dt><dd><span class="ln"><span class="nb">เทรน = สอน AI ตั้งแต่ต้น</span></span><span class="ln"><span class="nb">ใช้การ์ดแรง ๆ หลายพันใบ</span> <span class="nb">นานหลายเดือน</span></span><span class="ln"><span class="nb">รัน = ใช้ AI ที่สอนเสร็จแล้ว</span> <span class="nb">ตอบคำถามผู้ใช้</span></span><span class="ln"><span class="nb">ใช้การ์ดเล็กกว่าได้</span> <span class="nb">และโตเร็วมากช่วงหลัง</span></span></dd></div>
+      <div><dt>เรียงจากใหม่ไปเก่า</dt><dd><span class="ln"><span class="nb">B200</span></span><span class="ln"><span class="nb">H200 / RTX 5090</span></span><span class="ln"><span class="nb">MI300X / L40S</span></span><span class="ln"><span class="nb">H100 / RTX 4090</span></span><span class="ln"><span class="nb">A100</span></span></dd></div>
+    </dl>
+    <h4>รุ่นสำหรับดาต้าเซ็นเตอร์</h4>
+    <dl>
+      <div><dt>B200 <span class="mtag">ใหม่สุด</span></dt><dd><span class="ln"><span class="nb">NVIDIA Blackwell</span> <span class="nb">ออกปี 2024–2025</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">~180–192 GB</span></span><span class="ln"><span class="nb">แรงสุดในรายการ</span></span><span class="ln"><span class="nb">ใช้เทรนและรัน AI ตัวใหญ่</span> <span class="nb">ระดับแนวหน้า</span></span><span class="ln"><span class="nb">ราคาขึ้น = ความต้องการการ์ดใหม่สุดยังแรง</span></span></dd></div>
+      <div><dt>H200</dt><dd><span class="ln"><span class="nb">NVIDIA Hopper</span> <span class="nb">ออกปี 2024</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">141 GB</span></span><span class="ln"><span class="nb">คือ H100</span> <span class="nb">ที่อัปหน่วยความจำ</span></span><span class="ln"><span class="nb">เหมาะรัน AI ตัวใหญ่</span></span></dd></div>
+      <div><dt>H100</dt><dd><span class="ln"><span class="nb">NVIDIA Hopper</span> <span class="nb">ออกปี 2022</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">80 GB</span></span><span class="ln"><span class="nb">ตัวหลักของยุค ChatGPT</span></span><span class="ln"><span class="nb">ใช้กันแพร่หลายที่สุด</span></span></dd></div>
+      <div><dt>A100 <span class="mtag">เก่าสุด</span></dt><dd><span class="ln"><span class="nb">NVIDIA Ampere</span> <span class="nb">ออกปี 2020</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">40 / 80 GB</span></span><span class="ln"><span class="nb">ใช้กับงานเล็กถึงกลาง</span> <span class="nb">ราคาเช่าถูกกว่า</span></span><span class="ln"><span class="nb">ราคายังขึ้น = ของขาดทั้งตลาด</span></span><span class="ln"><span class="nb">ถ้าร่วงก่อนรุ่นอื่น</span> <span class="nb">= เริ่มมีของเหลือ</span></span></dd></div>
+      <div><dt>L40S</dt><dd><span class="ln"><span class="nb">NVIDIA</span> <span class="nb">ออกปี 2023</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">48 GB</span></span><span class="ln"><span class="nb">ดาต้าเซ็นเตอร์รุ่นประหยัด</span></span><span class="ln"><span class="nb">เน้นรัน AI ที่เทรนแล้ว</span> <span class="nb">และงานกราฟิก</span></span></dd></div>
+      <div><dt>MI300X <span class="mtag">AMD</span></dt><dd><span class="ln"><span class="nb">AMD</span> <span class="nb">ออกปลายปี 2023</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">192 GB</span></span><span class="ln"><span class="nb">คู่แข่งของ NVIDIA</span></span><span class="ln"><span class="nb">ใช้ดูว่า AMD เจาะตลาดได้แค่ไหน</span></span><span class="ln"><span class="nb">ผู้ให้เช่ายังน้อย</span> <span class="nb">ข้อมูลบาง</span></span></dd></div>
+    </dl>
+    <h4>รุ่นการ์ดเกม</h4>
+    <dl>
+      <div><dt>RTX 5090</dt><dd><span class="ln"><span class="nb">การ์ดเกม NVIDIA Blackwell</span> <span class="nb">ออกต้นปี 2025</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">32 GB</span></span><span class="ln"><span class="nb">คนทำ AI รายเล็ก</span> <span class="nb">และนักทดลองเช่าใช้</span></span><span class="ln"><span class="nb">แกว่งง่ายกว่ากลุ่มดาต้าเซ็นเตอร์</span></span></dd></div>
+      <div><dt>RTX 4090</dt><dd><span class="ln"><span class="nb">การ์ดเกมรุ่นก่อน</span> <span class="nb">ออกปลายปี 2022</span></span><span class="ln"><span class="nb">หน่วยความจำ</span> <span class="nb">24 GB</span></span><span class="ln"><span class="nb">ราคาเช่าถูก</span></span><span class="ln"><span class="nb">สะท้อนผู้ใช้รายเล็ก</span></span></dd></div>
+    </dl>
+    <p class="mnote"><span class="ln"><span class="nb">มีรุ่นใหม่กว่านี้ที่ยังไม่อยู่ในรายการ</span></span><span class="ln"><span class="nb">เช่น B300 / GB300 ของ NVIDIA</span> <span class="nb">และ MI325X / MI355X ของ AMD</span></span><span class="ln"><span class="nb">แหล่งข้อมูลยังมีประวัติราคาของรุ่นเหล่านี้ไม่พอ</span></span></p>
+  </details>
+  <div id="app"><div class="load">กำลังโหลดข้อมูล...</div></div>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+(function(){
+'use strict';
+const TH_M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const $=(s,r)=> (r||document).querySelector(s);
+const $$=(s,r)=> Array.from((r||document).querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isN=v=>typeof v==='number'&&isFinite(v);
+const attr=s=>esc(s).replace(/\n/g,'&#10;');
+
+const fmtD=d=>{const [y,m,dd]=d.split('-').map(Number);return dd+' '+TH_M[m-1]+' '+(y+543)};
+const fmtDs=d=>{const [y,m,dd]=d.split('-').map(Number);return dd+' '+TH_M[m-1]};
+const fmtMY=d=>{const [y,m]=d.split('-').map(Number);return TH_M[m-1]+' '+(y+543)};
+const fmtMYs=d=>{const [y,m]=d.split('-').map(Number);return TH_M[m-1]+' '+String(y+543).slice(2)};
+const usd=v=>isN(v)?('$'+(v<1?v.toFixed(3):v.toFixed(2))):'—';
+const px=v=>isN(v)?(v<1?v.toFixed(3):v.toFixed(2)):'—';
+const MINUS='−';
+const pct=(v,d=1)=>isN(v)?((v>0?'+':v<0?MINUS:'')+Math.abs(v).toFixed(d)+'%'):'—';
+const pctPlain=(v,d=1)=>isN(v)?(Math.abs(v).toFixed(d)+'%'):'—';
+const short=m=>m.label.replace(/^(NVIDIA|GeForce|AMD Instinct) /,'');
+const dirCls=v=>!isN(v)||Math.abs(v)<0.05?'flat':(v>0?'up':'down');
+const arrow=v=>{const c=dirCls(v);
+  if(c==='up')return '<svg class="ar up" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.5 9 8.5H1z"/></svg>';
+  if(c==='down')return '<svg class="ar down" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.5 1 1.5h8z"/></svg>';
+  return '<svg class="ar flat" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 5h7" stroke-width="1.8" stroke-linecap="round"/></svg>';};
+
+const REG={
+  loosening:{c:'var(--rg-loosening)',t:'var(--tp-loosening)',lbl:'ของเริ่มล้น',ic:'<svg class="ic ic-reg" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5 6 5.5l3.5-3M2.5 6.5 6 9.5l3.5-3"/></svg>'},
+  tightening:{c:'var(--rg-tightening)',t:'var(--tp-tightening)',lbl:'ของตึง',ic:'<svg class="ic ic-reg" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 5.5 6 2.5l3.5 3M2.5 9.5 6 6.5l3.5 3"/></svg>'},
+  demandUp:{c:'var(--rg-demandUp)',t:'var(--tp-demandUp)',lbl:'ต้องการแรง',ic:'<svg class="ic ic-reg" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2.5M3 5.5 6 2.5l3 3M2 10h8"/></svg>'},
+  demandDown:{c:'var(--rg-demandDown)',t:'var(--tp-demandDown)',lbl:'ต้องการอ่อน',ic:'<svg class="ic ic-reg" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v7.5M3 6.5 6 9.5l3-3M2 2h8"/></svg>'},
+  mixed:{c:'var(--rg-mixed)',t:'var(--tp-mixed)',lbl:'ยังไม่ชัด',ic:'<svg class="ic ic-reg" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5h8M2 7.5h8"/></svg>'}
+};
+const REG_TH=2.0; /* ขยับไม่ถึง 2% = นับว่าทรงตัว (ตรงกับ build_data.py) */
+const REG_MEAN={
+  loosening:'ของเพิ่มเร็วกว่าความต้องการ ราคาจึงลดลง',
+  tightening:'ของหายากขึ้น คนแย่งเช่า ราคาจึงขึ้น',
+  demandUp:'ราคาขึ้นทั้งที่ของเพิ่ม แปลว่าความต้องการโตเร็วกว่าของที่เพิ่มเข้ามา',
+  demandDown:'ราคาลดทั้งที่ของลด แปลว่าความต้องการหดเร็วกว่าของที่ถอนออก',
+  mixed:'ราคาหรือจำนวนแพ็กเกจเช่าแทบไม่ขยับ ยังอ่านทิศทางไม่ได้'
+};
+/* ตัวอย่างทดลอง: จัดป้าย 5 แบบจากตัวเลขใน derived (ไม่แก้ gpu_data.json) */
+function regimeOf(d){
+  const p=d.price_change_13w_pct,o=d.offering_change_13w_pct;
+  if(p==null||o==null||Math.abs(p)<REG_TH||Math.abs(o)<REG_TH)return 'mixed';
+  if(p<0&&o>0)return 'loosening';
+  if(p>0&&o<0)return 'tightening';
+  if(p>0&&o>0)return 'demandUp';
+  return 'demandDown';
+}
+let REG_TIP='กติกา: เทียบ 13 สัปดาห์ ระหว่างราคา on-demand กับจำนวนแพ็กเกจเช่า\nราคาลง + แพ็กเกจเช่าเพิ่ม = ของเริ่มล้น\nราคาขึ้น + แพ็กเกจเช่าลด = ของตึง\nราคาขึ้น + แพ็กเกจเช่าเพิ่ม = ต้องการแรง\nราคาลง + แพ็กเกจเช่าลด = ต้องการอ่อน\nตัวใดตัวหนึ่งขยับไม่ถึง 2% = ยังไม่ชัด';
+const regKey=k=>REG[k]?k:'mixed';
+const WARN_ICON='<svg class="ic ic-warn" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.2 10.4H.8z"/><path d="M6 4.4v2.8M6 8.3v.1" stroke="var(--surface)" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>';
+
+/* ---------- state ---------- */
+let D=null, MODELS=[], focus='h100', hmWeeks=13;
+const vis={od:true,spot:true,res:true,bars:true};
+const stockVis={gpu:true,NVDA:true,CRWV:true,NBIS:true,ORCL:true};
+const STOCK_COL={NVDA:'var(--c3)',CRWV:'var(--c2)',NBIS:'var(--c4)',ORCL:'var(--c5)'};
+
+/* ---------- theme ---------- */
+const root=document.documentElement;
+function themeGet(){try{return localStorage.getItem('gpu-theme')||'auto'}catch(e){return 'auto'}}
+function themeApply(t){
+  if(t==='light'||t==='dark')root.setAttribute('data-theme',t);else root.removeAttribute('data-theme');
+  const l={auto:'ธีม: อัตโนมัติ',light:'ธีม: สว่าง',dark:'ธีม: มืด'}[t];
+  $('#themeLbl').textContent=l;
+}
+$('#themeBtn').addEventListener('click',()=>{
+  const order=['auto','light','dark'];const n=order[(order.indexOf(themeGet())+1)%3];
+  try{localStorage.setItem('gpu-theme',n)}catch(e){}
+  themeApply(n);
+});
+themeApply(themeGet());
+
+/* ---------- tooltip ---------- */
+const tip=$('#tip');
+/* marker ต่อบรรทัด: \u0001var(--tp-xxx)\u0002ข้อความ = ตัวหนาสีตามสภาพ; ข้อความทุกบรรทัดใส่ผ่าน textContent เท่านั้น */
+const TM_RE=/^\u0001(var\(--tp-[A-Za-z]+\))\u0002/;
+const tmk=(c,t)=>'\u0001'+c+'\u0002'+t;
+const tplain=t=>String(t).replace(/\u0001var\(--tp-[A-Za-z]+\)\u0002/g,'');
+function tipFill(text){
+  tip.textContent='';
+  if(text.indexOf('\u0001')<0){tip.textContent=text;return}
+  text.split('\n').forEach((ln,i)=>{
+    if(i)tip.appendChild(document.createTextNode('\n'));
+    const m=TM_RE.exec(ln);
+    if(m){const sp=document.createElement('span');sp.className='tl';sp.style.color=m[1];sp.textContent=ln.slice(m[0].length);tip.appendChild(sp)}
+    else tip.appendChild(document.createTextNode(ln));
+  });
+}
+function tipShow(html,x,y,isHtml){
+  if(isHtml)tip.innerHTML=html;else tipFill(html);
+  tip.classList.add('on');
+  const r=tip.getBoundingClientRect();
+  let left=x+14, top=y+14;
+  if(left+r.width>innerWidth-8)left=x-r.width-14;
+  if(left<8)left=Math.max(8,Math.min(innerWidth-r.width-8,x-r.width/2));
+  if(top+r.height>innerHeight-8)top=y-r.height-14;
+  if(top<8)top=8;
+  tip.style.left=left+'px';tip.style.top=top+'px';
+}
+function tipHide(){tip.classList.remove('on')}
+function tipAtEl(el){const r=el.getBoundingClientRect();tipShow(el.getAttribute('data-tip'),r.left+r.width/2-14,r.bottom-6)}
+document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t&&!t.matches('td.c'))tipShow(t.getAttribute('data-tip'),e.clientX,e.clientY)});
+document.addEventListener('mousemove',e=>{if(tip.classList.contains('on')&&tip.dataset.mode!=='x'){const t=e.target.closest&&e.target.closest('[data-tip]');if(t&&!t.matches('td.c'))tipShow(t.getAttribute('data-tip'),e.clientX,e.clientY)}});
+document.addEventListener('mouseout',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t&&!t.matches('td.c')&&!(e.relatedTarget&&t.contains(e.relatedTarget)))tipHide()});
+document.addEventListener('focusin',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t)tipAtEl(t)});
+document.addEventListener('focusout',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t)tipHide()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')tipHide()});
+addEventListener('scroll',tipHide,{passive:true});
+
+/* ---------- math helpers ---------- */
+function niceTicks(lo,hi,cnt){
+  if(hi===lo){hi=lo+1;}
+  const raw=(hi-lo)/(cnt-1), p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p;
+  const step=(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;
+  const s=Math.floor(lo/step+1e-9)*step, e=Math.ceil(hi/step-1e-9)*step, t=[];
+  for(let v=s;v<=e+step/2;v+=step)t.push(+v.toFixed(10));
+  return t;
+}
+function pathOf(vals,x,y){
+  let d='',pen=false;
+  vals.forEach((v,i)=>{if(!isN(v)){pen=false;return}d+=(pen?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);pen=true});
+  return d;
+}
+
+/* ---------- sparkline ---------- */
+function spark(rows){
+  const W=220,H=52,p=3;
+  const od=rows.map(r=>r.on_demand_median), sp=rows.map(r=>r.spot_median);
+  const all=od.concat(sp).filter(isN);
+  const lo=Math.min(...all), hi=Math.max(...all), n=rows.length;
+  const x=i=>p+i*(W-2*p)/(n-1), y=v=>H-p-(v-lo)/(hi-lo||1)*(H-2*p);
+  const dOd=pathOf(od,x,y), dSp=pathOf(sp,x,y);
+  const area=dOd?dOd+'L'+x(n-1).toFixed(1)+' '+H+'L'+x(0).toFixed(1)+' '+H+'Z':'';
+  let li=od.length-1;while(li>0&&!isN(od[li]))li--;
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" aria-hidden="true" focusable="false"><path class="area" d="'+area+'"/><path class="sp2" d="'+dSp+'"/><path class="od" d="'+dOd+'"/>'+(isN(od[li])?'<circle class="dot" cx="'+x(li).toFixed(1)+'" cy="'+y(od[li]).toFixed(1)+'" r="3.2"/>':'')+'</svg>';
+}
+
+/* ---------- generic chart ---------- */
+const charts=new Map();
+function drawChart(host,cfg){
+  if(!host.clientWidth){host.innerHTML='';return}
+  const W=Math.max(300,Math.round(host.clientWidth)), H=cfg.height||(W<520?250:320);
+  const m={l:W<520?42:50,r:cfg.bars?(W<520?38:46):14,t:12,b:26};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b, n=cfg.dates.length;
+  const x=i=>m.l+(n<2?0:i*iw/(n-1));
+  const on=cfg.series.filter(s=>s.on);
+  let vals=[];on.forEach(s=>s.values.forEach(v=>isN(v)&&vals.push(v)));
+  if(cfg.ref!=null)vals.push(cfg.ref);
+  let lo=vals.length?Math.min(...vals):0, hi=vals.length?Math.max(...vals):1;
+  const pad=(hi-lo)*.06||hi*.06||.1; lo=Math.max(cfg.floor0?0:-Infinity,lo-pad); hi=hi+pad; if(cfg.zero)lo=Math.min(0,lo);
+  const ticks=niceTicks(lo,hi,5); lo=ticks[0]; hi=ticks[ticks.length-1];
+  const y=v=>m.t+ih-(v-lo)/(hi-lo)*ih;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" tabindex="0" aria-label="'+attr(cfg.aria)+' ใช้ปุ่มลูกศรซ้ายขวาเพื่ออ่านค่าแต่ละสัปดาห์" focusable="true">';
+  ticks.forEach(t=>{s+='<line class="gl" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y(t).toFixed(1)+'" y2="'+y(t).toFixed(1)+'"/><text class="axt" x="'+(m.l-6)+'" y="'+(y(t)+3.5).toFixed(1)+'" text-anchor="end">'+esc(cfg.yFmt(t))+'</text>'});
+  // bars on secondary axis
+  let y2=null;
+  if(cfg.bars&&cfg.bars.on){
+    const bv=cfg.bars.values.filter(isN), bmax=bv.length?Math.max(...bv):1;
+    const t2=niceTicks(0,bmax*1.0,4), top2=t2[t2.length-1];
+    y2=v=>m.t+ih-v/top2*ih;
+    const bw=Math.max(2,Math.min(14,iw/n*.62));
+    cfg.bars.values.forEach((v,i)=>{if(!isN(v))return;s+='<rect class="bar" x="'+(x(i)-bw/2).toFixed(1)+'" y="'+y2(v).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+(m.t+ih-y2(v)).toFixed(1)+'"/>'});
+    t2.forEach(t=>{s+='<text class="axt" x="'+(W-m.r+6)+'" y="'+(y2(t)+3.5).toFixed(1)+'" text-anchor="start" style="fill:var(--accent);opacity:.8">'+t+'</text>'});
+  }
+  if(cfg.ref!=null&&cfg.ref>=lo&&cfg.ref<=hi)s+='<line class="refl" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y(cfg.ref).toFixed(1)+'" y2="'+y(cfg.ref).toFixed(1)+'"/>';
+  // x labels
+  let lastX=-99,lastM='';
+  cfg.dates.forEach((d,i)=>{const mo=d.slice(0,7);if(mo===lastM)return;lastM=mo;const xx=x(i);if(xx-lastX<62||xx>W-m.r-16&&false)return;
+    if(xx<m.l+8||xx>W-m.r-14)return;lastX=xx;
+    s+='<text class="axt" x="'+xx.toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+fmtMYs(d)+'</text>'});
+  on.forEach(se=>{s+='<path class="ln" d="'+pathOf(se.values,x,y)+'" style="stroke:'+se.color+';stroke-width:'+(se.w||2)+(se.dash?';stroke-dasharray:'+se.dash:'')+'"/>'});
+  s+='<g class="xg" style="display:none"><line class="xh" y1="'+m.t+'" y2="'+(m.t+ih)+'"/>';
+  on.forEach((se,k)=>{s+='<circle class="xd" data-k="'+k+'" r="4" style="fill:'+se.color+'"/>'});
+  s+='</g><rect class="ov" x="'+m.l+'" y="'+m.t+'" width="'+iw+'" height="'+ih+'" fill="transparent" style="cursor:crosshair"/></svg>';
+  host.innerHTML=s;
+  const svg=host.firstChild, g=$('.xg',svg), xh=$('.xh',svg), dots=$$('.xd',svg), ov=$('.ov',svg);
+  const st=charts.get(host)||{};st.idx=n-1;charts.set(host,st);
+  function showAt(i,fromKb){
+    i=Math.max(0,Math.min(n-1,i));st.idx=i;
+    g.style.display='';xh.setAttribute('x1',x(i));xh.setAttribute('x2',x(i));
+    on.forEach((se,k)=>{const v=se.values[i];const d=dots[k];if(isN(v)){d.style.display='';d.setAttribute('cx',x(i));d.setAttribute('cy',y(v))}else d.style.display='none'});
+    let h='<div class="th">'+esc(fmtD(cfg.dates[i]))+'</div>';
+    (cfg.sortTip?on.map(se=>({se,v:se.values[i]})).sort((a,b)=>(isN(b.v)?b.v:-1e18)-(isN(a.v)?a.v:-1e18)).map(o=>o.se):on).forEach(se=>{h+='<div class="tr"><i style="background:'+se.color+'"></i><span>'+esc(se.label)+'</span><b>'+esc(se.tipFmt?se.tipFmt(se.values[i]):px(se.values[i]))+'</b></div>'});
+    if(cfg.bars&&cfg.bars.on)h+='<div class="tr"><i class="b" style="background:var(--accent)"></i><span>'+esc(cfg.bars.label)+'</span><b>'+(isN(cfg.bars.values[i])?cfg.bars.values[i]:'—')+'</b></div>';
+    if(cfg.extra)h+=cfg.extra(i);
+    const r=svg.getBoundingClientRect();
+    tip.dataset.mode='x';
+    tipShow(h,r.left+x(i)*r.width/W,r.top+m.t*r.height/H+10,true);
+  }
+  function hide(){g.style.display='none';tipHide();tip.dataset.mode=''}
+  function idxFromEvt(e){const r=svg.getBoundingClientRect();const px_=(e.clientX-r.left)*W/r.width;return Math.round((px_-m.l)/iw*(n-1))}
+  ov.addEventListener('pointermove',e=>showAt(idxFromEvt(e)));
+  ov.addEventListener('pointerdown',e=>showAt(idxFromEvt(e)));
+  ov.addEventListener('pointerleave',hide);
+  svg.addEventListener('focus',()=>showAt(st.idx));
+  svg.addEventListener('blur',hide);
+  svg.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();showAt(st.idx-1)}
+    else if(e.key==='ArrowRight'){e.preventDefault();showAt(st.idx+1)}
+    else if(e.key==='Home'){e.preventDefault();showAt(0)}
+    else if(e.key==='End'){e.preventDefault();showAt(n-1)}
+    else if(e.key==='Escape')hide();
+  });
+}
+const ro=new ResizeObserver(()=>{requestAnimationFrame(()=>{renderDetailChart();renderStockChart();cmpChart()})});
+let lastW={};
+function observe(host){ro.observe(host)}
+
+/* ---------- sections ---------- */
+function isThin(k){const d=D.derived[k];return d&&(d.min_provider_count_13w<8||d.repeated_value_weeks>=25)}
+function thinTip(k){const d=D.derived[k];return 'ข้อมูลบาง\nผู้ให้บริการน้อย (ต่ำสุด '+d.min_provider_count_13w+' ราย ใน 13 สัปดาห์)\nราคาซ้ำค่าเดิม '+d.repeated_value_weeks+' จาก '+D.weekly[k].length+' สัปดาห์\nแนวโน้มอาจไม่สะท้อนตลาดจริง\nควรอ่านอย่างระวัง'}
+
+function buildCards(){
+  return '<div class="grid" role="group" aria-label="การ์ดรายรุ่น GPU">'+MODELS.map(m=>{
+    const d=D.derived[m.key],rows=D.weekly[m.key],rk=regKey(d.supply_regime),rg=REG[rk];
+    const cls=dirCls(d.price_change_4w_pct)==='up'?'u':dirCls(d.price_change_4w_pct)==='down'?'d':'';
+    const sd=d.spot_discount_latest_pct;
+    const label=short(m)+' on-demand '+px(d.latest_on_demand_median)+' ดอลลาร์ต่อชั่วโมง, 4 สัปดาห์ '+pct(d.price_change_4w_pct)+', 52 สัปดาห์ '+pct(d.price_change_52w_pct)+', ส่วนลด spot '+pctPlain(sd)+', สถานะอุปทาน '+rg.lbl+(isThin(m.key)?', คำเตือน ข้อมูลบาง':'');
+    return '<div class="card '+cls+(ewOf(m.key)?' ewc':'')+'" role="button" tabindex="0" aria-pressed="false" data-focus="'+m.key+'" aria-label="'+attr(label)+'">'
+     +'<div class="c-head"><span class="c-name">'+esc(short(m))+'</span><span class="c-vram">'+m.vram_gb+'GB</span>'
+     +(isThin(m.key)?'<span data-tip="'+attr(thinTip(m.key))+'">'+WARN_ICON+'</span>':'')
+     +'<span class="sp"></span><span class="reg rg-'+rk+'" data-tip="'+attr(REG_TIP)+'">'+rg.ic+'<span style="font-size:12px">'+rg.lbl+'</span></span>'+(ewOf(m.key)?'<span style="flex-basis:100%;height:0"></span>'+ewBadge(m.key):'')+'</div>'
+     +spark(rows)
+     +'<div class="c-price"><span class="cur">$</span><span class="big">'+px(d.latest_on_demand_median)+'</span><span class="unit">/GPU-ชม.</span></div>'
+     +'<dl class="c-stats"><div><dt>4 สัปดาห์</dt><dd>'+arrow(d.price_change_4w_pct)+pct(d.price_change_4w_pct)+'</dd></div>'
+     +'<div><dt>52 สัปดาห์</dt><dd>'+arrow(d.price_change_52w_pct)+pct(d.price_change_52w_pct)+'</dd></div>'
+     +'<div><dt>ส่วนลด spot</dt><dd>'+pctPlain(sd)+'</dd><span class="gauge" aria-hidden="true"><i style="width:'+Math.max(0,Math.min(100,(sd||0)/60*100))+'%"></i></span></div></dl>'
+     +'</div>';
+  }).join('')+'</div>';
+}
+
+function buildDetail(){
+  return '<div class="detail" id="detail"><div class="d-head"><div><h3 class="d-title" id="dTitle"></h3><div class="d-meta" id="dMeta"></div></div><div class="chips" id="dSwitch" role="group" aria-label="เลือกรุ่น GPU"></div></div>'
+   +'<div class="analysis" id="dAnalysis"></div><div class="stats" id="dStats"></div>'
+   +'<div class="chips" id="dLegend" role="group" aria-label="เลือกเส้นที่แสดง" style="margin-bottom:8px"></div>'
+   +'<div class="chartbox" id="dChart"></div>'
+   +'<p class="note">'+lns([nb('แท่งสีฟ้าอ่อน = จำนวนแพ็กเกจเช่า ต่อสัปดาห์ แกนขวา'),nb('เส้น = ราคา USD ต่อ GPU-ชั่วโมง แกนซ้าย'),'เลื่อนเมาส์หรือกดลูกศรซ้ายขวาที่กราฟเพื่ออ่านค่า'])+'</p>'
+   +'<details class="mn"><summary>หมายเหตุการรวมข้อมูลของรุ่นนี้</summary><p id="dNote" lang="en"></p></details></div>';
+}
+
+function stat(l,v,n,tip){return '<div class="stat"'+(tip?' data-tip="'+attr(tip)+'"':'')+'><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(n?'<div class="n">'+n+'</div>':'')+'</div>'}
+
+function renderDetail(){
+  const m=MODELS.find(x=>x.key===focus), d=D.derived[focus], rows=D.weekly[focus], last=rows[rows.length-1];
+  const rk=regKey(d.supply_regime), rg=REG[rk];
+  $('#dTitle').innerHTML=esc(m.label)+(isThin(focus)?' <span data-tip="'+attr(thinTip(focus))+'" tabindex="0" aria-label="'+attr(thinTip(focus))+'">'+WARN_ICON+'</span>':'')+' <span class="reg rg-'+rk+'" data-tip="'+attr(REG_TIP)+'" tabindex="0" style="font-size:13px;font-weight:400">'+rg.ic+rg.lbl+'</span>';
+  const launch=m.launch?fmtMY(m.launch+'-01'):'—';
+  $('#dMeta').textContent='VRAM '+m.vram_gb+' GB · เปิดตัวประมาณ '+launch+' · ข้อมูลรายสัปดาห์ถึง '+fmtD(d.latest_week);
+  $('#dNote').textContent=m.merge_note||'';
+  $('#dSwitch').innerHTML=MODELS.map(x=>'<button type="button" class="chip" data-focus="'+x.key+'" aria-pressed="'+(x.key===focus)+'">'+esc(short(x))+'</button>').join('');
+  $('#dAnalysis').innerHTML=modelLede(m);
+  $('#dStats').innerHTML=
+    stat('on-demand ล่าสุด','$'+px(d.latest_on_demand_median),'มัธยฐานสัปดาห์ '+fmtDs(d.latest_week))
+   +stat('ราคาเปลี่ยนต่อปี',arrow(d.decay_annualized_52w_pct)+pct(d.decay_annualized_52w_pct)+'<span style="font-size:11px;color:var(--muted);margin-left:3px">/ปี</span>','คำนวณจาก 52 สัปดาห์ ค่าบวก = ราคาเช่าสูงขึ้น')
+   +stat('เปลี่ยน 4 สัปดาห์',arrow(d.price_change_4w_pct)+pct(d.price_change_4w_pct),'ราคา on-demand มัธยฐาน')
+   +stat('เปลี่ยน '+WIN_N+' สัปดาห์',arrow(win(focus).p)+pct(win(focus).p),'ราคา on-demand มัธยฐาน')
+   +stat('เปลี่ยน 52 สัปดาห์',arrow(d.price_change_52w_pct)+pct(d.price_change_52w_pct),'ราคา on-demand มัธยฐาน')
+   +stat('ส่วนลด spot',pctPlain(d.spot_discount_latest_pct),WIN_N+' สัปดาห์ก่อน '+(win(focus).saBad?'เทียบไม่ได้':pctPlain(win(focus).sa)),win(focus).saBad?SPOT_BAD:undefined)
+   +stat('แพ็กเกจเช่า '+WIN_N+' สัปดาห์',arrow(win(focus).o)+pct(win(focus).o),'ล่าสุด '+(isN(last.offering_count)?last.offering_count:'—')+' แพ็กเกจ')
+   +stat('ผู้ให้บริการ '+WIN_N+' สัปดาห์',arrow(win(focus).v)+pct(win(focus).v),'ล่าสุด '+(isN(last.provider_count)?last.provider_count:'—')+' ราย');
+  $('#dLegend').innerHTML=[['od','on-demand','var(--accent)'],['spot','spot','var(--c2)'],['res','เช่ารายเดือน (1m)','var(--c3)'],['bars','จำนวนแพ็กเกจเช่า','color-mix(in srgb,var(--accent) 35%,transparent)']].map(a=>'<button type="button" class="chip'+(vis[a[0]]?'':' off')+'" data-vis="'+a[0]+'" aria-pressed="'+vis[a[0]]+'"><i class="sw" style="background:'+a[2]+(a[0]==='bars'?';height:9px;width:9px;border-radius:2px':'')+'"></i>'+a[1]+'</button>').join('');
+  renderDetailChart();
+}
+function renderDetailChart(){
+  if(!D)return;
+  const host=$('#dChart');if(!host)return;
+  const rows=D.weekly[focus], m=MODELS.find(x=>x.key===focus);
+  drawChart(host,{
+    dates:rows.map(r=>r.date), yFmt:v=>'$'+(v<1?v.toFixed(2):v.toFixed(v<10?1:0)), aria:m.label+' ราคา on-demand เทียบ spot และเช่ารายเดือน พร้อมจำนวนแพ็กเกจเช่า',
+    series:[
+      {on:vis.od,label:'on-demand (มัธยฐาน)',color:'var(--accent)',w:2.4,values:rows.map(r=>r.on_demand_median),tipFmt:usd},
+      {on:vis.spot,label:'spot (มัธยฐาน)',color:'var(--c2)',w:1.8,dash:'5 3',values:rows.map(r=>r.spot_median),tipFmt:usd},
+      {on:vis.res,label:'เช่ารายเดือน 1m',color:'var(--c3)',w:1.8,values:rows.map(r=>r.reservation_1m_median),tipFmt:usd}
+    ],
+    bars:{on:vis.bars,label:'จำนวนแพ็กเกจเช่า',values:rows.map(r=>r.offering_count)},
+    extra:i=>'<div class="tr"><i style="background:transparent"></i><span style="opacity:.75">ผู้ให้บริการ</span><b>'+(isN(rows[i].provider_count)?rows[i].provider_count:'—')+'</b></div>'
+  });
+}
+
+function wowMatrix(){
+  return MODELS.map(m=>{const r=D.weekly[m.key];return r.map((x,i)=>{if(i===0)return null;const a=r[i-1].on_demand_median,b=x.on_demand_median;return isN(a)&&isN(b)&&a!==0?(b/a-1)*100:null})});
+}
+function buildHeat(){
+  return '<div class="hm-bar"><div class="seg" role="group" aria-label="จำนวนสัปดาห์ที่แสดง">'+[13,26,52].map(n=>'<button type="button" data-hm="'+n+'" aria-pressed="'+(n===hmWeeks)+'">'+n+' สัปดาห์</button>').join('')+'</div><span class="scale"><span>ขนาดการเปลี่ยน</span><span class="nw">0%</span><i></i><span class="nw">15%+</span></span></div><div class="scroll" id="hmWrap" tabindex="-1"></div>'
+   +'<p class="note">'+lns(['แต่ละช่อง = ราคา on-demand มัธยฐานเปลี่ยนจากสัปดาห์ก่อนกี่ %','ลูกศรบอกทิศทาง','ความเข้มสีน้ำเงินบอกขนาด','ใช้ลูกศรบนแป้นพิมพ์เลื่อนระหว่างช่อง'])+'</p>';
+}
+let WOW=null;
+function renderHeat(){
+  const wrap=$('#hmWrap');if(!wrap)return;
+  const len=D.weekly[MODELS[0].key].length, n=Math.min(hmWeeks,len-1), start=len-n;
+  const dates=D.weekly[MODELS[0].key].map(r=>r.date);
+  let h='<table class="hm" role="grid" aria-label="ตารางความร้อนการเปลี่ยนราคารายสัปดาห์"><thead><tr><th class="rh" scope="col">รุ่น</th>';
+  for(let c=start;c<len;c++){const [y,mo,dd]=dates[c].split('-').map(Number);h+='<th scope="col"><b>'+dd+'</b>'+TH_M[mo-1]+'</th>'}
+  h+='<th class="cum" scope="col">สะสม '+n+' สัปดาห์</th></tr></thead><tbody>';
+  MODELS.forEach((m,r)=>{
+    const rows=D.weekly[m.key];
+    h+='<tr data-row="'+m.key+'" class="'+(m.key===focus?'sel':'')+'"><th class="rh" scope="row" data-focus="'+m.key+'">'+esc(short(m))+(isThin(m.key)?' <span data-tip="'+attr(thinTip(m.key))+'" style="display:inline-block;vertical-align:middle">'+WARN_ICON+'</span>':'')+'</th>';
+    for(let c=start;c<len;c++){
+      const v=WOW[r][c],a=Math.min(Math.abs(v||0)/15,1)*52;
+      const prev=rows[c-1].on_demand_median,cur=rows[c].on_demand_median;
+      const tipT=short(m)+'\nสัปดาห์ '+fmtD(dates[c])+'\nราคา on-demand '+usd(prev)+' → '+usd(cur)+'\nเปลี่ยนจากสัปดาห์ก่อน '+pct(v,2);
+      h+='<td class="c" role="gridcell" tabindex="'+(r===0&&c===start?0:-1)+'" data-r="'+r+'" data-c="'+(c-start)+'" style="--a:'+a.toFixed(1)+'%" data-tip="'+attr(tipT)+'" aria-label="'+attr(tipT.replace(/\n/g,', '))+'"><span>'+(isN(v)?arrow(v)+(Math.abs(v)<0.05?'0.0':Math.abs(v).toFixed(1)):'—')+'</span></td>';
+    }
+    const base=rows[len-1-n].on_demand_median,cur=rows[len-1].on_demand_median,cum=(isN(base)&&isN(cur)&&base)?(cur/base-1)*100:null;
+    h+='<td class="cum"><span style="display:inline-flex;align-items:center">'+arrow(cum)+pct(cum)+'</span></td></tr>';
+  });
+  h+='</tbody></table>';
+  wrap.innerHTML=h;
+  wrap.scrollLeft=wrap.scrollWidth; // show newest weeks
+  const tbl=$('table',wrap);
+  tbl.addEventListener('focusin',e=>{const c=e.target.closest('td.c');if(c){tip.dataset.mode='';tipAtEl(c);}});
+  tbl.addEventListener('focusout',e=>{if(e.target.closest('td.c'))tipHide()});
+  tbl.addEventListener('mouseover',e=>{const c=e.target.closest('td.c');if(c)tipShow(c.getAttribute('data-tip'),e.clientX,e.clientY)});
+  tbl.addEventListener('mousemove',e=>{const c=e.target.closest('td.c');if(c)tipShow(c.getAttribute('data-tip'),e.clientX,e.clientY)});
+  tbl.addEventListener('mouseout',e=>{if(e.target.closest('td.c'))tipHide()});
+  tbl.addEventListener('keydown',e=>{
+    const c=e.target.closest('td.c');if(!c)return;
+    let r=+c.dataset.r,k=+c.dataset.c;
+    if(e.key==='ArrowRight')k++;else if(e.key==='ArrowLeft')k--;else if(e.key==='ArrowDown')r++;else if(e.key==='ArrowUp')r--;
+    else if(e.key==='Home')k=0;else if(e.key==='End')k=n-1;
+    else if(e.key==='Enter'||e.key===' '){e.preventDefault();setFocus(MODELS[r].key,true);return}
+    else return;
+    e.preventDefault();
+    const t=$('td.c[data-r="'+r+'"][data-c="'+k+'"]',tbl);
+    if(t){c.tabIndex=-1;t.tabIndex=0;t.focus()}
+  });
+}
+
+/* stock panel */
+function stockAligned(sym,dates){
+  const w=D.stocks[sym].weekly,out=[];let j=-1;
+  dates.forEach(dt=>{while(j+1<w.length&&w[j+1].date<=dt)j++;out.push(j>=0&&isN(w[j].close)?w[j].close:null)});
+  return out;
+}
+function buildStock(){
+  return '<div class="detail"><div class="d-head"><div><h3 class="d-title" id="sTitle"></h3><div class="d-meta" id="sMeta"></div></div></div>'
+   +'<div class="chips" id="sLegend" role="group" aria-label="เลือกเส้นที่แสดง" style="margin:12px 0 8px"></div>'
+   +'<div class="chartbox" id="sChart"></div><div class="stock-sum" id="sSum"></div>'
+   +'<p class="note" id="sNote"></p></div>';
+}
+let stockState=null;
+function computeStock(){
+  const rows=D.weekly[focus],dates=rows.map(r=>r.date);
+  const ser={gpu:rows.map(r=>r.on_demand_median)};
+  Object.keys(D.stocks).forEach(s=>ser[s]=stockAligned(s,dates));
+  const keys=Object.keys(ser).filter(k=>stockVis[k]);
+  let bi=-1;
+  for(let i=0;i<dates.length;i++){if(keys.every(k=>isN(ser[k][i]))){bi=i;break}}
+  if(bi<0&&keys.length){bi=0}
+  const reb={};
+  Object.keys(ser).forEach(k=>{const b=bi>=0?ser[k][bi]:null;reb[k]=ser[k].map(v=>(isN(v)&&isN(b)&&b)?v/b*100:null)});
+  stockState={dates,ser,reb,bi};
+}
+function renderStock(){
+  const m=MODELS.find(x=>x.key===focus);
+  computeStock();
+  const {dates,reb,bi}=stockState;
+  $('#sTitle').textContent='ดัชนีราคาเช่า '+short(m)+' เทียบหุ้น AI infrastructure';
+  $('#sMeta').textContent=bi>=0?('ปรับฐานเป็น 100 ที่สัปดาห์ร่วมแรก '+fmtD(dates[bi])):'ยังไม่มีสัปดาห์ร่วมสำหรับเส้นที่เลือก';
+  const items=[['gpu',short(m)+' on-demand','var(--accent)']].concat(Object.keys(D.stocks).map(s=>[s,s,STOCK_COL[s]||'var(--muted)']));
+  $('#sLegend').innerHTML=items.map(a=>'<button type="button" class="chip'+(stockVis[a[0]]?'':' off')+'" data-svis="'+a[0]+'" aria-pressed="'+stockVis[a[0]]+'"><i class="sw" style="background:'+a[2]+'"></i>'+esc(a[1])+'</button>').join('');
+  $('#sSum').innerHTML=items.filter(a=>stockVis[a[0]]).map(a=>{
+    const arr=reb[a[0]];let li=arr.length-1;while(li>=0&&!isN(arr[li]))li--;
+    const v=li>=0?arr[li]:null,ch=isN(v)?v-100:null;
+    return '<div class="ss"><div class="l"><i style="background:'+a[2]+'"></i>'+esc(a[1])+'</div><div class="v">'+(isN(v)?v.toFixed(1):'—')+'<small style="display:inline-flex;align-items:center">'+arrow(ch)+pct(ch)+'</small></div></div>'}).join('');
+  const late=Object.keys(D.stocks).filter(s=>stockVis[s]&&D.stocks[s].first_date>dates[0]).map(s=>s+' (เริ่ม '+fmtD(D.stocks[s].first_date)+')');
+  $('#sNote').innerHTML=lns(['ฝั่งซ้ายคือราคา on-demand มัธยฐานของ GPU รายสัปดาห์','ฝั่งหุ้นคือราคาปิดล่าสุดของสัปดาห์ ปรับตามการแตกพาร์ / ปันผล','ถ้าหุ้นเข้าตลาดทีหลังเส้นราคา GPU จะใช้สัปดาห์ร่วมแรกเป็นฐาน',late.length?'หุ้นที่เริ่มมีข้อมูลหลังต้นช่วง: '+esc(late.join(', ')):'','กราฟนี้ดูทิศทางร่วมกันเท่านั้น','ไม่ได้บอกว่าตัวใดเป็นเหตุของตัวใด']);
+  renderStockChart();
+}
+function renderStockChart(){
+  if(!D||!stockState)return;
+  const host=$('#sChart');if(!host)return;
+  const {dates,reb}=stockState,m=MODELS.find(x=>x.key===focus);
+  const f1=v=>isN(v)?v.toFixed(1):'—';
+  const S=[{k:'gpu',label:short(m)+' on-demand',color:'var(--accent)',w:3}].concat(Object.keys(D.stocks).map(s=>({k:s,label:s,color:STOCK_COL[s]||'var(--muted)',w:1.7})));
+  drawChart(host,{dates,height:undefined,ref:100,yFmt:v=>String(Math.round(v)),aria:'ดัชนีราคาเช่า '+m.label+' เทียบหุ้น NVDA CRWV NBIS ORCL ปรับฐาน 100',
+    series:S.map(s=>({on:!!stockVis[s.k],label:s.label,color:s.color,w:s.w,values:reb[s.k],tipFmt:f1}))});
+}
+
+/* daily */
+function buildDaily(){
+  const days=new Set();MODELS.forEach(m=>(D.daily[m.key]||[]).forEach(r=>days.add(r.date)));
+  const dl=Array.from(days).sort();
+  const slots='<span class="slots" aria-hidden="true">'+dl.map(()=>'<i class="f"></i>').join('')+Array(13).fill('<i></i>').join('')+'</span>';
+  return '<div class="snap-intro"><svg class="ic" viewBox="0 0 12 12" style="fill:none;stroke:var(--accent);stroke-width:1.4;stroke-linecap:round"><circle cx="6" cy="6" r="4.6"/><path d="M6 3.4V6l1.8 1.2"/></svg>'
+   +'<span>'+lns(['เริ่มเก็บข้อมูลรายวันเมื่อ <b class="nw">21 พ.ย. 2569</b>','ตอนนี้มี <b>'+dl.length+'</b> วัน จึงแสดงเป็นภาพรวมวันล่าสุดก่อน','กราฟรายวันจะเพิ่มเมื่อสะสมข้อมูลได้มากขึ้น'])+'</span>'+slots
+   +'<span style="color:var(--muted);font-size:12px">'+lns(['ช่องเต็ม = มีข้อมูลแล้ว','ช่องประ = ยังไม่มี'])+'</span></div>'
+   +'<div class="tiles" id="dayTiles"></div>'
+   +'<div class="scroll"><table class="dt"><thead><tr><th>รุ่น</th><th>RunPod secure</th><th>RunPod community</th><th>Vast on-demand median</th><th>Vast GPU / เครื่อง</th><th>Vast bid median</th></tr></thead><tbody id="dayBody"></tbody></table></div>'
+   +'<p class="note">'+lns(['หน่วย USD ต่อ GPU-ชั่วโมง','Vast คิดต่อ GPU จาก dph_total / จำนวน GPU','ราคารายวันเก็บเองจาก API สาธารณะ','จึงเทียบกับมัธยฐานรายสัปดาห์ของ GetDeploying ตรง ๆ ไม่ได้','ช่อง — = วันนี้ไม่มีข้อมูลรุ่นนั้น'])+'</p>';
+}
+function lastDaily(k){const a=D.daily[k]||[];return a.length?a[a.length-1]:null}
+function renderDaily(){
+  const t=$('#dayTiles');if(!t)return;
+  const m=MODELS.find(x=>x.key===focus),d=lastDaily(focus);
+  if(!d){t.innerHTML='<div class="tile"><div class="l">'+esc(short(m))+'</div><div class="v">—</div><div class="n">ยังไม่มีข้อมูลรายวัน</div></div>'}
+  else{
+    const tl=(l,v,n)=>'<div class="tile"><div class="l">'+l+'</div><div class="v">'+(isN(v)?'$'+px(v):'—')+'</div><div class="n">'+n+'</div></div>';
+    t.innerHTML=tl('RunPod secure · '+esc(short(m)),d.runpod_secure,'ณ '+fmtD(d.date))
+     +tl('RunPod community',d.runpod_community,'ตลาดชุมชน ราคาต่ำกว่า secure')
+     +tl('Vast on-demand median',d.vast_on_demand_median,isN(d.vast_on_demand_gpu_count)?(d.vast_on_demand_gpu_count+' GPU จาก '+d.vast_on_demand_offer_count+' เครื่อง'):'ไม่มีข้อมูลวันนี้')
+     +tl('Vast bid median',d.vast_bid_median,'ราคาแบบ interruptible');
+  }
+  $('#dayBody').innerHTML=MODELS.map(x=>{const r=lastDaily(x.key);
+    if(!r)return '<tr><td>'+esc(short(x))+'</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>';
+    return '<tr class="'+(x.key===focus?'sel':'')+'"><td>'+esc(short(x))+'</td><td>'+usd(r.runpod_secure)+'</td><td>'+usd(r.runpod_community)+'</td><td>'+usd(r.vast_on_demand_median)+'</td><td>'+(isN(r.vast_on_demand_gpu_count)?r.vast_on_demand_gpu_count+' <small>/ '+r.vast_on_demand_offer_count+'</small>':'—')+'</td><td>'+usd(r.vast_bid_median)+'</td></tr>'}).join('');
+}
+
+/* focus handling */
+function setFocus(k,fromUi){
+  if(!D.derived[k])return;
+  focus=k;try{localStorage.setItem('gpu-focus',k)}catch(e){}
+  $$('.card').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.focus===k)));
+  $$('#hmWrap tr[data-row]').forEach(r=>r.classList.toggle('sel',r.dataset.row===k));
+  renderDetail();renderStock();renderDaily();writeHash();
+}
+
+function buildFooter(){
+  const meta=D.meta;let a=esc(meta.attribution||'');
+  a=a.replace('https://getdeploying.com/gpus','<a href="https://getdeploying.com/gpus" target="_blank" rel="noopener">https://getdeploying.com/gpus</a>');
+  a=a.replace(/CC BY 4\.0/,'<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>');
+  let built='—';
+  if(meta.built_at){const t=new Date(meta.built_at);if(!isNaN(t)){const b=new Date(t.getTime()+7*3600e3);const p=n=>String(n).padStart(2,'0');
+    built=b.getUTCDate()+' '+TH_M[b.getUTCMonth()]+' '+(b.getUTCFullYear()+543)+' '+p(b.getUTCHours())+':'+p(b.getUTCMinutes())+' น.';}}
+  return '<footer><p>ข้อมูลราคาเช่ารายสัปดาห์: '+a+'</p><div class="row"><span>RunPod / Vast.ai: เก็บเองรายวัน</span><span>ราคาหุ้น: Yahoo Finance</span><span>สร้างข้อมูลเมื่อ: '+built+' (เวลาไทย)</span></div>'
+   +'<p>'+lns(['ประวัติรายสัปดาห์เริ่ม 17 พ.ย. 2568','แดชบอร์ดนี้แสดงข้อมูลเพื่อติดตามแนวโน้ม','ไม่ใช่คำแนะนำการลงทุนหรือการซื้อขาย'])+'</p></footer>';
+}
+
+function section(code,title,hint,body){return '<section class="panel"><header class="ph"><span class="code">'+code+'</span><h2>'+title+'</h2><span class="hint">'+hint.split('\n').map(x=>'<span class="ln">'+x+'</span>').join('')+'</span></header>'+body+'</section>'}
+
+function render(){
+  MODELS=D.meta.models;WOW=wowMatrix();
+  const wr=D.meta.weekly_range||[];
+  const lastDate=D.weekly[MODELS[0].key].slice(-1)[0].date;
+  $('#asof').innerHTML='ข้อมูลรายสัปดาห์ถึง <b>'+fmtD(lastDate)+'</b>';
+  $('#legendNote').hidden=false;
+  let saved=null;try{saved=localStorage.getItem('gpu-focus')}catch(e){}
+  if(saved&&D.derived[saved])focus=saved;else if(!D.derived[focus])focus=MODELS[0].key;
+  $('#app').innerHTML=
+    '<div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">'+buildBrief()
+   +section('A1','การ์ดรายรุ่น','คลิกการ์ดเพื่อเลือกรุ่นที่ใช้ในกราฟรายละเอียดและกราฟหุ้น\nเส้นทึบ = on-demand\nเส้นประจาง = spot',buildCards())
+   +section('A2','รายละเอียดรุ่นที่เลือก','on-demand เทียบ spot และเช่ารายเดือน พร้อมจำนวนแพ็กเกจเช่า',buildDetail())
+   +section('A3','ความร้อนรายสัปดาห์','การเปลี่ยนราคา on-demand จากสัปดาห์ก่อน แยกตามรุ่น',buildHeat())
+   +section('A4','เทียบกับหุ้น','ดัชนีราคาเช่า GPU เทียบ NVDA / CRWV / NBIS / ORCL ปรับฐานเป็น 100',buildStock())
+   +section('A5','ภาพรวมรายวัน','ข้อมูลเก็บเองจาก RunPod และ Vast.ai เพิ่งเริ่มสะสม',buildDaily())
+   +'</div><div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" tabindex="0" hidden>'+buildCompare()+'</div>'
+   +buildFooter();
+  observe($('#dChart'));observe($('#sChart'));observe($('#cChart'));
+  renderHeat();
+  applyHash();
+  setFocus(focus);
+  setTab(tab);
+}
+
+/* ================= combined additions ================= */
+const DC=['b200','h200','h100','a100','l40s','mi300x'];
+const nb=s=>'<span class="nb">'+s+'</span>';
+const ln=h=>'<span class="ln">'+h+'</span>';
+const lns=a=>a.filter(Boolean).map(ln).join('');
+const med=a=>{a=a.filter(isN).sort((x,y)=>x-y);if(!a.length)return null;const h=a.length>>1;return a.length%2?a[h]:(a[h-1]+a[h])/2};
+const dx=(v,txt)=>'<span class="dirx">'+arrow(v)+(txt||pct(v))+'</span>';
+const ppt=v=>isN(v)?((v>0?'+':v<0?MINUS:'')+Math.abs(v).toFixed(1)+' จุด'):'—';
+const nmOf=k=>short(MODELS.find(m=>m.key===k));
+
+/* ---- page-wide comparison window (4 / 13 / 26 weeks) ---- */
+let WIN_N=13;const WINS=[4,13,26];let WINC={};
+const WIN_NOTE={4:['ไวต่อการเปลี่ยนทิศ แต่แกว่งง่าย','(บางสัปดาห์ราคาซ้ำค่าเดิม)'],13:['ราว 1 ไตรมาส','ตรงกับรอบงบ'],26:['ภาพครึ่งปี','เปลี่ยนช้า']};
+const dayMs=864e5, dateMs=d=>{const a=d.split('-').map(Number);return Date.UTC(a[0],a[1]-1,a[2])};
+function regimeP(p,o){
+  if(!isN(p)||!isN(o)||Math.abs(p)<REG_TH||Math.abs(o)<REG_TH)return 'mixed';
+  if(p<0&&o>0)return 'loosening';
+  if(p>0&&o<0)return 'tightening';
+  if(p>0&&o>0)return 'demandUp';
+  return 'demandDown';
+}
+function winCompute(n){
+  const out={};
+  MODELS.forEach(m=>{
+    const k=m.key,rows=D.weekly[k]||[],ok=rows.filter(r=>isN(r.on_demand_median)),last=ok[ok.length-1];
+    const r={p:null,o:null,v:null,sa:null,reg:'mixed'};
+    if(last){
+      const tgt=dateMs(last.date)-n*7*dayMs;
+      let base=null;ok.forEach(x=>{if(dateMs(x.date)<=tgt)base=x});
+      if(base&&base.on_demand_median)r.p=(last.on_demand_median/base.on_demand_median-1)*100;
+      if(base&&isN(base.spot_median)&&base.on_demand_median){if(base.spot_median>base.on_demand_median)r.saBad=true;else r.sa=(1-base.spot_median/base.on_demand_median)*100}
+      const m3=(f,end)=>{const a=rows.filter(x=>dateMs(x.date)<=end&&isN(x[f])).slice(-3);return a.length?a.reduce((t,x)=>t+x[f],0)/a.length:null};
+      const ch=f=>{const a=m3(f,dateMs(last.date)),b=m3(f,tgt);return isN(a)&&isN(b)&&b?(a/b-1)*100:null};
+      r.o=ch('offering_count');r.v=ch('provider_count');
+    }
+    /* ใช้ค่าจาก build_data.py ตรง ๆ เมื่อมี เพื่อไม่ให้ตัวเลขเดียวกันโชว์ต่างกัน 0.1 ในหน้าเดียว */
+    const dv=D.derived[k]||{};
+    if(isN(dv['price_change_'+n+'w_pct']))r.p=dv['price_change_'+n+'w_pct'];
+    if(isN(dv['offering_change_'+n+'w_pct']))r.o=dv['offering_change_'+n+'w_pct'];
+    if(isN(dv['provider_change_'+n+'w_pct']))r.v=dv['provider_change_'+n+'w_pct'];
+    const ub=dv['spot_unreliable_'+n+'w_ago'];
+    if(typeof ub==='boolean'){r.saBad=ub;if(ub)r.sa=null}
+    if(!r.saBad&&isN(dv['spot_discount_'+n+'w_ago_pct']))r.sa=dv['spot_discount_'+n+'w_ago_pct'];
+    r.reg=regimeP(r.p,r.o);
+    if(typeof dv['regime_'+n+'w']==='string'&&REG[dv['regime_'+n+'w']])r.reg=dv['regime_'+n+'w'];
+    out[k]=r;
+  });
+  return out;
+}
+const SPOT_BAD='ข้อมูล spot ช่วงนั้นมาจากผู้ให้บริการน้อยเกินไป ใช้เทียบไม่ได้';
+const win=k=>(WINC[WIN_N]||{})[k]||{p:null,o:null,v:null,sa:null,reg:'mixed'};
+function winApply(){
+  if(!WINC[WIN_N])WINC[WIN_N]=winCompute(WIN_N);
+  MODELS.forEach(m=>{const d=D.derived[m.key];if(d)d.supply_regime=win(m.key).reg});
+  REG_TIP='กติกา: เทียบ '+WIN_N+' สัปดาห์ ระหว่างราคา on-demand กับจำนวนแพ็กเกจเช่า\nราคาลง + แพ็กเกจเช่าเพิ่ม = ของเริ่มล้น\nราคาขึ้น + แพ็กเกจเช่าลด = ของตึง\nราคาขึ้น + แพ็กเกจเช่าเพิ่ม = ต้องการแรง\nราคาลง + แพ็กเกจเช่าลด = ต้องการอ่อน\nตัวใดตัวหนึ่งขยับไม่ถึง 2% = ยังไม่ชัด';
+}
+function winFromHash(){
+  const m=/(?:^|[#&])w=(\d+)/.exec(location.hash||'');
+  WIN_N=m&&WINS.indexOf(+m[1])>=0?+m[1]:13;
+}
+/* ---- early warning: 4w label differs from 13w, held 2 weeks, 4w not mixed ---- */
+let EWC=null;
+const EW_IC='<svg class="ic ic-ew" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5 11 10.5H1z"/></svg>';
+function ewRegAt(k,n,skip){
+  const rows=D.weekly[k]||[],ok=rows.filter(r=>isN(r.on_demand_median)),last=ok[ok.length-1-skip];
+  if(!last)return 'mixed';
+  const tgt=dateMs(last.date)-n*7*dayMs;let base=null;ok.forEach(x=>{if(dateMs(x.date)<=tgt)base=x});
+  const p=base&&base.on_demand_median?(last.on_demand_median/base.on_demand_median-1)*100:null;
+  const m3=(f,end)=>{const a=rows.filter(x=>dateMs(x.date)<=end&&isN(x[f])).slice(-3);return a.length?a.reduce((t,x)=>t+x[f],0)/a.length:null};
+  const a=m3('offering_count',dateMs(last.date)),b=m3('offering_count',tgt);
+  const o=isN(a)&&isN(b)&&b?(a/b-1)*100:null;
+  return regimeP(p,o);
+}
+function ewAll(){
+  if(EWC)return EWC;
+  const w4=WINC[4]||(WINC[4]=winCompute(4)),w13=WINC[13]||(WINC[13]=winCompute(13));
+  EWC={list:[]};
+  MODELS.forEach(m=>{
+    const k=m.key,dvk=D.derived[k],r4=w4[k].reg,r13=w13[k].reg;
+    let e;
+    if(dvk&&'early_warning' in dvk&&(dvk.early_warning===null||typeof dvk.early_warning==='object')){e=dvk.early_warning}
+    else{const prev=ewRegAt(k,4,1);e=(r4!=='mixed'&&r4!==r13&&prev===r4)?{r4:r4,r13:r13}:null}
+    EWC[k]=e;
+    if(e)EWC.list.push(k);
+  });
+  return EWC;
+}
+const ewOf=k=>ewAll()[k]||null;
+const ewBadge=k=>ewOf(k)?'<span class="ew" data-tip="'+attr('เริ่มเปลี่ยน\nภาพ 4 สัปดาห์ต่างจากภาพ 13 สัปดาห์\nเป็นแบบนี้ 2 สัปดาห์ติด\nยังไม่ใช่การยืนยัน')+'">'+EW_IC+'เริ่มเปลี่ยน</span>':'';
+function setWindow(n){
+  if(n===WIN_N||WINS.indexOf(n)<0)return;
+  WIN_N=n;winApply();writeHash();
+  const y=scrollY;tipHide();render();scrollTo(0,y);
+  const b=document.querySelector('[data-win="'+n+'"]');if(b)b.focus({preventScroll:true});
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-win]');if(b&&D)setWindow(+b.dataset.win)});
+
+/* ---- analysis summary (top of overview): quadrant map ---- */
+function buildBrief(){
+  const keys=MODELS.map(m=>m.key), dv=k=>D.derived[k];
+  const dcMed=med(DC.filter(k=>dv(k)).map(k=>win(k).p));
+  const wk=D.weekly[keys[0]], we=wk[wk.length-1].date, baseT=dateMs(we)-WIN_N*7*dayMs;
+  let ws=wk[0].date;wk.forEach(x=>{if(dateMs(x.date)<=baseT)ws=x.date});
+  const allP=keys.map(k=>win(k).p).filter(isN);
+  const nUp=allP.filter(v=>v>=0.05).length, nDn=allP.filter(v=>v<=-0.05).length, nFl=allP.length-nUp-nDn;
+  const cap1=lns([nb('ราคาขึ้น '+nUp+' จาก '+allP.length+' รุ่น'),nDn?nb('ราคาลง '+nDn+' รุ่น'):'',nFl?nb('ทรงตัว '+nFl+' รุ่น'):'']);
+  const rc={loosening:0,tightening:0,demandUp:0,demandDown:0,mixed:0};
+  keys.forEach(k=>{rc[regKey(dv(k).supply_regime)]++});
+  const order=['demandUp','tightening','mixed','loosening','demandDown'];
+  const ewl=ewAll().list;
+  const cap3=lns(order.filter(r=>rc[r]>0).map(r=>'<span class="nb rg-'+r+'">'+REG[r].lbl+' '+rc[r]+' รุ่น</span>').concat(ewl.length?['<span class="ewcap">'+nb('เริ่มเปลี่ยน '+ewl.length+' รุ่น: ')+ewl.map(k=>nb(esc(nmOf(k)))).join(nb(',')+' ')+'</span>']:[]));
+  const med13=f=>med(keys.map(k=>win(k)[f]));
+  const mrow=[['แพ็กเกจเช่า',med13('o')],['ผู้ให้บริการ',med13('v')],['ราคา',med13('p')]]
+    .map(x=>'<span><span class="l">'+x[0]+'</span><b>'+arrow(x[1])+pct(x[1])+'</b></span>').join('');
+  const headWord=!isN(dcMed)||Math.abs(dcMed)<0.05?'ทรงตัว':dcMed<0?'ลดลง':'สูงขึ้น';
+  if(BK_OPEN&&!bkKeys(BK_OPEN).length)BK_OPEN=null;
+  const chip=(r,cls,inner,txt)=>'<button type="button" class="bk-chip '+cls+'" data-bkchip="'+r+'" aria-expanded="'+(BK_OPEN===r)+'" aria-controls="bkPanel">'+inner+nb(txt)+'</button>';
+  const chips='<div class="bk-chips" role="group" aria-label="จำนวนรุ่นตามสภาพอุปทาน '+WIN_N+' สัปดาห์ กดเพื่อดูรายชื่อรุ่น">'+order.filter(r=>rc[r]>0).map(r=>chip(r,'rg-'+r,'',REG[r].lbl+' '+rc[r]+' รุ่น')).join('')+(ewl.length?chip('ew','ew-c',EW_IC,'เริ่มเปลี่ยน '+ewl.length+' รุ่น'):'')+'</div>'
+    +'<div class="bk-pn" id="bkPanel" role="region" aria-label="รายชื่อรุ่น" '+(BK_OPEN?'':'hidden')+'>'+bkPanelHtml()+'</div>';
+  requestAnimationFrame(()=>{renderBrief();bkWatch()});
+  return '<section class="brief" id="briefRoot" aria-labelledby="briefH">'
+   +'<div class="bk-head"><div class="tg"><span class="live" aria-hidden="true"></span>สรุปจากข้อมูล<span class="ln">สร้างอัตโนมัติ ไม่ใช่คำแนะนำซื้อขาย</span></div>'
+   +'<div class="bk-hrow"><div class="bk-num'+(isN(dcMed)&&dcMed<=-0.05?' neg':'')+'" aria-hidden="true">'+(isN(dcMed)?pct(dcMed):'—')+'</div>'
+   +'<div class="bk-ht"><h2 id="briefH" aria-label="ราคาเช่า GPU ดาต้าเซ็นเตอร์ '+headWord+' '+pct(dcMed)+' ใน '+WIN_N+' สัปดาห์">'+nb('ราคาเช่า GPU')+' '+nb('ดาต้าเซ็นเตอร์')+' '+nb('ใน '+WIN_N+' สัปดาห์')+'</h2>'
+   +'<p>'+nb('ค่ามัธยฐานของ '+DC.length+' รุ่นดาต้าเซ็นเตอร์')+' '+nb(fmtD(ws)+' – '+fmtD(we))+'</p>'+chips+'</div>'
+   +'<div class="bk-strip" id="bkStrip"></div></div>'
+   +'<div class="bk-wrow"><span class="bk-wl">'+nb('ช่วงเปรียบเทียบ')+'</span><div class="bk-seg" role="group" aria-label="ช่วงเปรียบเทียบของการ์ดแพ็กเกจเช่าและส่วนลด spot และสถานะอุปทานทั้งหน้า">'+WINS.map(n=>'<button type="button" data-win="'+n+'" aria-pressed="'+(n===WIN_N)+'">'+nb(n+' สัปดาห์')+'</button>').join('')+'</div><span class="bk-wn">'+lns(WIN_NOTE[WIN_N].map(nb))+'</span></div>'+bkAnalysis(dcMed)+'</div>'
+   +'<div class="bk-card bk-c1"><h3>ราคาเช่าเปลี่ยนใน '+WIN_N+' สัปดาห์</h3><div id="bkBar"></div><p class="cap">'+cap1+'</p></div>'
+   +'<div class="bk-card bk-c2"><h3>ส่วนลด spot</h3><div id="bkDb"></div><p class="cap">'+lns([nb('วงโปร่ง = '+WIN_N+' สัปดาห์ก่อน'),nb('วงทึบ = ล่าสุด'),nb('แคบลง = spot ไล่ใกล้ราคาปกติ')])+'</p></div>'
+   +'<div class="bk-card bk-c3"><h3>ราคากับแพ็กเกจเช่า ใน '+WIN_N+' สัปดาห์</h3><div id="bkSc"></div><div class="bk-med" aria-label="มัธยฐาน '+WIN_N+' สัปดาห์">'+mrow+'</div><p class="cap">'+cap3+'</p></div>'
+   +'</section>';
+}
+/* ---- chip panel: click a regime chip to list its models ---- */
+let BK_OPEN=null;
+function bkKeys(r){return r==='ew'?ewAll().list.slice():MODELS.map(m=>m.key).filter(k=>regKey(win(k).reg)===r)}
+function bkPanelHtml(){
+  if(!BK_OPEN)return '';
+  const ks=bkKeys(BK_OPEN);
+  if(BK_OPEN==='ew'){
+    return '<div class="bk-pt ewcap">'+nb('เริ่มเปลี่ยน')+' '+nb('ภาพ 4 สัปดาห์')+' '+nb('ต่างจากภาพ 13 สัปดาห์')+'</div>'
+      +ks.map(k=>{const e=ewOf(k);return '<div class="bk-pr"><span class="nm">'+esc(nmOf(k))+'</span>'
+        +'<span class="nb">4 สัปดาห์ = <span class="rg-'+regKey(e.r4)+'" style="font-weight:600">'+esc(REG[regKey(e.r4)].lbl)+'</span></span>'
+        +'<span class="nb">13 สัปดาห์ = <span class="rg-'+regKey(e.r13)+'" style="font-weight:600">'+esc(REG[regKey(e.r13)].lbl)+'</span></span></div>'}).join('');
+  }
+  return '<div class="bk-pt rg-'+BK_OPEN+'">'+nb(esc(REG[BK_OPEN].lbl)+' ใน '+WIN_N+' สัปดาห์')+'</div>'
+    +ks.map(k=>{const w=win(k);return '<div class="bk-pr"><span class="nm">'+esc(nmOf(k))+'</span>'
+      +'<span class="nb">ราคา '+dx(w.p)+'</span><span class="nb">แพ็กเกจเช่า '+dx(w.o)+'</span><span class="nb">ผู้ให้บริการ '+dx(w.v)+'</span>'
+      +(ewOf(k)?ewBadge(k):'')+'</div>'}).join('');
+}
+function bkPanelRefresh(){
+  const pn=document.getElementById('bkPanel');if(!pn)return;
+  if(BK_OPEN&&!bkKeys(BK_OPEN).length)BK_OPEN=null;
+  pn.innerHTML=bkPanelHtml();pn.hidden=!BK_OPEN;
+  document.querySelectorAll('[data-bkchip]').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.bkchip===BK_OPEN)));
+  const sc=document.getElementById('bkSc');if(sc&&sc.clientWidth)bkScatter(sc);
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-bkchip]');if(!b||!D)return;
+  BK_OPEN=BK_OPEN===b.dataset.bkchip?null:b.dataset.bkchip;bkPanelRefresh();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape'||!BK_OPEN)return;
+  const r=BK_OPEN;BK_OPEN=null;bkPanelRefresh();
+  const b=document.querySelector('[data-bkchip="'+r+'"]');if(b)b.focus({preventScroll:true});
+});
+
+/* ---- auto analysis per window ---- */
+const BK_LONG={4:13,13:26,26:52};
+function bkMedWin(n){
+  if(n===52)return med(DC.map(k=>D.derived[k]&&D.derived[k].price_change_52w_pct));
+  const w=WINC[n]||(WINC[n]=winCompute(n));return med(DC.map(k=>w[k]&&w[k].p));
+}
+function bkAnalysis(M){
+  const N=WIN_N,keys=MODELS.map(m=>m.key),g1=[],g2=[],g3=[];
+  const pc2=v=>dx(v,v<0?pct(v,2):bkN(v,2)+'%');
+  const bold=r=>'class="rg-'+r+'" style="font-weight:600"';
+  /* 1 price level */
+  if(isN(M)){
+    const a=Math.abs(M),w=a<2?'ทรงตัว':(M>0?(a>=8?'ขึ้นชัด':'ขึ้นเล็กน้อย'):(a>=8?'ลงชัด':'ลงเล็กน้อย'));
+    g1.push(nb('ราคาเช่ากลุ่มดาต้าเซ็นเตอร์')+' '+nb(w)+' '+nb('(ค่ากลาง')+' '+dx(M)+' '+nb('ใน '+N+' สัปดาห์)'));
+  }
+  /* 2 breadth */
+  const allP=keys.map(k=>win(k).p).filter(isN);
+  if(allP.length){
+    const up=allP.filter(v=>v>=0.5).length,dn=allP.filter(v=>v<=-0.5).length,fl=allP.length-up-dn;
+    const parts=[['ขึ้น',up],['ลง',dn],['ทรงตัว',fl]].filter(x=>x[1]>0);
+    g1.push(parts.map((x,i)=>nb((i===0?'ราคา':'')+x[0]+' '+x[1]+' รุ่น')).join(' '));
+  }
+  /* 3 segment split */
+  const cons=keys.filter(k=>DC.indexOf(k)<0),cm=med(cons.map(k=>win(k).p));
+  if(isN(M)&&isN(cm)){
+    if(Math.abs(M-cm)>=5||M*cm<0){
+      g1.push(nb('รุ่นดาต้าเซ็นเตอร์')+' '+dx(M)+' '+nb('ขณะที่การ์ดเกม (RTX)')+' '+dx(cm));
+      let segT;
+      if(M>cm){segT=(cm<=-2&&Math.abs(M)<2)?['การ์ดเกมอ่อนตัว','ขณะที่รุ่นดาต้าเซ็นเตอร์ยังทรงตัว']:(cm<0&&M>=2)?['รุ่นดาต้าเซ็นเตอร์ขึ้น','สวนทางการ์ดเกมที่ลง']:['รุ่นดาต้าเซ็นเตอร์ขยับแรงกว่าการ์ดเกม'];}
+      else{segT=(M<=-2&&Math.abs(cm)<2)?['รุ่นดาต้าเซ็นเตอร์อ่อนตัว','ขณะที่การ์ดเกมยังทรงตัว']:(M<0&&cm>=2)?['การ์ดเกมขึ้น','สวนทางรุ่นดาต้าเซ็นเตอร์ที่ลง']:['การ์ดเกมขยับแรงกว่ารุ่นดาต้าเซ็นเตอร์'];}
+      g1.push(segT.map(nb).join(' '));
+    }else g1.push(nb('รุ่นดาต้าเซ็นเตอร์กับการ์ดเกมไปทางเดียวกัน'));
+  }
+  /* 4 supply picture */
+  const order=['demandUp','tightening','mixed','loosening','demandDown'],rc={};order.forEach(r=>{rc[r]=0});
+  keys.forEach(k=>{rc[regKey(win(k).reg)]++});
+  const top=order.slice().sort((a,b)=>rc[b]-rc[a])[0];
+  if(rc[top]>=5){
+    g2.push(nb('ภาพอุปทานส่วนใหญ่')+' <span '+bold(top)+'>'+nb('‘'+esc(REG[top].lbl)+'’')+'</span> '+nb('('+rc[top]+' จาก '+keys.length+' รุ่น)'));
+    g2.push(REG_MEAN[top].split(' ').map(t=>nb(esc(t))).join(' '));
+  }else{
+    g2.push(nb('ภาพอุปทานแตกเป็นหลายแบบ')+' '+nb('ยังไม่มีทิศเดียว'));
+    g2.push(order.filter(r=>rc[r]>0).map(r=>'<span '+bold(r)+'>'+nb(esc(REG[r].lbl)+' '+rc[r]+' รุ่น')+'</span>').join(' '));
+  }
+  /* 5 spot */
+  const ds=keys.map(k=>{const w=win(k),b=D.derived[k]&&D.derived[k].spot_discount_latest_pct;return !w.saBad&&isN(w.sa)&&isN(b)?b-w.sa:null}).filter(isN);
+  if(ds.length){
+    const sm=med(ds),x=Math.abs(sm).toFixed(1);
+    if(sm<=-3){g2.push(nb('ส่วนลด spot แคบลงราว')+' '+nb(x+' จุด'));g2.push(nb('ราคา spot ไล่ใกล้ราคาปกติ')+' '+nb('= เครื่องว่างหาเช่ายากขึ้น'))}
+    else if(sm>=3){g2.push(nb('ส่วนลด spot กว้างขึ้นราว')+' '+nb(x+' จุด'));g2.push(nb('มีเครื่องว่างเหลือมากขึ้น'))}
+    else g2.push(nb('ส่วนลด spot แทบไม่เปลี่ยน'));
+  }
+  /* 6 pace vs a longer window */
+  const L=BK_LONG[N],ML=bkMedWin(L);
+  if(isN(M)&&isN(ML)){
+    const sp=M/N,lp=ML/L;
+    const cmp=nb('ช่วง '+N+' สัปดาห์')+' '+nb(sp>0?'ขึ้นเฉลี่ย':'เปลี่ยนเฉลี่ย')+' '+pc2(sp)+' '+nb('ต่อสัปดาห์')+' '+nb('เทียบกับ')+' '+pc2(lp)+' '+nb('ในช่วง '+L+' สัปดาห์');
+    const same=nb('ความเร็วใกล้เคียงช่วง '+L+' สัปดาห์');
+    if(lp>0){
+      const r=sp/lp;
+      if(sp<0){g3.push(nb('ช่วงสั้นกลับทิศเป็นลง'));g3.push(cmp)}
+      else if(r<0.5){g3.push(nb('แรงส่งชะลอลง'));g3.push(cmp)}
+      else if(r>1.5){g3.push(nb('แรงส่งเร่งขึ้น'));g3.push(cmp)}
+      else{g3.push(same);g3.push(cmp)}
+    }else if(lp<0){
+      if(sp>0){g3.push(nb('ช่วงสั้นกลับทิศเป็นขึ้น'));g3.push(cmp)}
+      else{const r=sp/lp;
+        if(r<0.5){g3.push(nb('การลดลงชะลอลง'));g3.push(cmp)}
+        else if(r>1.5){g3.push(nb('การลดลงเร่งขึ้น'));g3.push(cmp)}
+        else g3.push(same)}
+    }
+  }
+  /* 7 early warning */
+  const ewl=ewAll().list;
+  if(ewl.length){
+    g3.push('<span class="ewcap">'+nb('เริ่มเปลี่ยน '+ewl.length+' รุ่น:')+' '+ewl.map(k=>nb(esc(nmOf(k)))).join(nb(',')+' ')+'</span>');
+    g3.push(nb('ภาพ 4 สัปดาห์ของรุ่นเหล่านี้')+' '+nb('ต่างจากภาพ 13 สัปดาห์')+' '+nb('ยังไม่ยืนยัน'));
+  }
+  /* 8 thin data: only models behind the headline or the early-warning list */
+  const thin=keys.filter(k=>isThin(k)&&(DC.indexOf(k)>=0||ewl.indexOf(k)>=0));
+  if(thin.length)g3.push(thin.map(k=>nb(esc(nmOf(k)))).join(nb(',')+' ')+' '+nb('ข้อมูลบาง')+' '+nb('อ่านอย่างระวัง'));
+  const grp=(h,a)=>a.length?'<div class="bk-ag"><h3 class="bk-ah">'+h+'</h3>'+lns(a)+'</div>':'';
+  const h=grp('ราคา',g1)+grp('อุปทาน',g2)+grp('สัญญาณ',g3);
+  return h?'<div class="bk-an" id="bkAn" role="group" aria-label="สรุปจากข้อมูล ช่วง '+N+' สัปดาห์">'+h+'</div>':'';
+}
+
+let bkRO=null,bkKey='',bkPts=[];
+const BK_IDS=['bkBar','bkDb','bkSc','bkStrip'];
+function bkWatch(){
+  const el=document.getElementById('briefRoot');if(!el)return;
+  if(bkRO)bkRO.disconnect();
+  bkRO=new ResizeObserver(()=>{requestAnimationFrame(()=>{
+    const k=BK_IDS.map(i=>{const h=document.getElementById(i);return h?h.clientWidth:0}).join('|');
+    if(k!==bkKey)renderBrief()})});
+  bkRO.observe(el);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{bkKey='';renderBrief()});
+}
+const bkN=(v,d)=>(v<0?MINUS:'')+Math.abs(v).toFixed(d==null?1:d);
+function bkSvg(w,h,inner,label){return '<svg class="bk" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" role="img" aria-label="'+esc(label)+'">'+inner+'</svg>'}
+function bkRange(vals){const lo0=Math.min(0,...vals),hi0=Math.max(0,...vals),span=Math.max(hi0-lo0,10),st=[5,10,20,25,50,100].find(x=>span/x<=6)||200;return {lo:Math.floor(lo0/st-1e-9)*st,hi:Math.ceil(hi0/st-1e-9)*st,st}}
+function bkTicks(lo,hi,stp){const span=hi-lo,st=stp||(span>240?50:20),t=[];for(let v=Math.ceil(lo/st-1e-9)*st;v<=hi+1e-9;v+=st)t.push(v);return t}
+const bkSgn=v=>v<0?MINUS+Math.abs(v):String(v);
+function renderBrief(){
+  if(!D||!document.getElementById('briefRoot'))return;
+  const hs={bar:$('#bkBar'),db:$('#bkDb'),sc:$('#bkSc'),st:$('#bkStrip')};
+  if(!hs.bar||!hs.bar.clientWidth)return;
+  bkKey=BK_IDS.map(i=>document.getElementById(i).clientWidth).join('|');
+  bkBars(hs.bar);bkDumb(hs.db);bkScatter(hs.sc);bkStrip(hs.st);
+}
+/* mini dot strip beside the headline */
+function bkStrip(host){
+  const W=host.clientWidth||240,H=44,ml=6,mr=6,pw=W-ml-mr,dv=k=>D.derived[k];
+  const vals=DC.filter(k=>dv(k)).map(k=>({k,v:win(k).p})).filter(o=>isN(o.v));
+  if(!vals.length){host.innerHTML='';return}
+  const m=med(vals.map(o=>o.v));
+  const rg0=bkRange(vals.map(o=>o.v)),lo=rg0.lo,hi=rg0.hi;
+  const sx=v=>ml+(v-lo)/(hi-lo)*pw, cy=20, r=4.5, placed=[];
+  let s='<line x1="'+ml+'" x2="'+(ml+pw)+'" y1="'+cy+'" y2="'+cy+'" stroke="var(--line)" stroke-width="1"/>';
+  bkTicks(lo,hi,rg0.st).forEach(t=>{s+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+(cy-3)+'" y2="'+(cy+3)+'" stroke="var(--line)"/><text x="'+sx(t)+'" y="'+(H-3)+'" text-anchor="'+(t===hi?'end':t===lo?'start':'middle')+'" font-size="9.5" fill="var(--muted)">'+bkSgn(t)+'%</text>'});
+  s+='<line x1="'+sx(m)+'" x2="'+sx(m)+'" y1="4" y2="'+(cy+9)+'" stroke="var(--fg)" stroke-width="1.5"/>';
+  vals.sort((a,b)=>a.v-b.v).forEach(o=>{
+    const x=sx(o.v);let dy=0;
+    for(const c of [0,-7,7,-14,14]){if(!placed.some(p=>Math.hypot(p.x-x,p.y-(cy+c))<2*r-0.5)){dy=c;break}}
+    placed.push({x,y:cy+dy});
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+(cy+dy)+'" r="'+r+'" fill="var(--accent)" fill-opacity=".72" stroke="var(--surface)" stroke-width="1" data-tip="'+attr(nmOf(o.k)+'\nราคาเช่า '+WIN_N+' สัปดาห์ '+pct(o.v))+'"/>';
+  });
+  host.innerHTML=bkSvg(W,H,s,'ผลตอบแทนราคาเช่า '+WIN_N+' สัปดาห์ของ '+vals.length+' รุ่นดาต้าเซ็นเตอร์ มัธยฐาน '+pct(m));
+}
+/* card 1: horizontal bars */
+function bkBars(host){
+  const W=host.clientWidth,dv=k=>D.derived[k];
+  const rows=MODELS.map(m=>({k:m.key,v:win(m.key).p})).filter(o=>isN(o.v)).sort((a,b)=>b.v-a.v);
+  if(!rows.length){host.innerHTML='';return}
+  const rg0=bkRange(rows.map(r=>r.v)),lo=rg0.lo,hi=rg0.hi;
+  const labW=64,gut=54,x0=labW+6,pw=Math.max(60,W-x0-gut),rh=26,top=4,H=top+rows.length*rh+20;
+  const sx=v=>x0+(v-lo)/(hi-lo)*pw, mx=Math.max(...rows.map(r=>Math.abs(r.v)))||1;
+  let s='';
+  bkTicks(lo,hi,rg0.st).forEach(t=>{s+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+top+'" y2="'+(top+rows.length*rh)+'" '+(t===0?'stroke="var(--muted)" stroke-width="1.4"':'stroke="var(--line)" stroke-width="1" stroke-dasharray="2 3"')+'/><text x="'+sx(t)+'" y="'+(H-5)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+bkSgn(t)+'%</text>'});
+  rows.forEach((r,i)=>{
+    const y=top+i*rh,cy=y+rh/2,ext=i===0||i===rows.length-1,xa=sx(0),xb=sx(r.v),bx=Math.min(xa,xb),bw=Math.max(1,Math.abs(xb-xa));
+    const op=(.35+.65*Math.abs(r.v)/mx).toFixed(2);
+    const tipT=nmOf(r.k)+'\nราคาเช่า on-demand '+pct(r.v)+' ใน '+WIN_N+' สัปดาห์'+(isThin(r.k)?'\nข้อมูลบาง อ่านอย่างระวัง':'');
+    s+='<g data-tip="'+attr(tipT)+'" tabindex="0" aria-label="'+attr(tipT.replace(/\n/g,' '))+'"><rect x="0" y="'+y+'" width="'+W+'" height="'+rh+'" fill="transparent" class="fo" rx="3"/>'
+     +'<text x="'+(labW-2)+'" y="'+(cy+4)+'" text-anchor="end" font-size="11.5" '+(ext?'font-weight="700" fill="var(--fg)"':'fill="var(--muted)"')+'>'+esc(nmOf(r.k))+'</text>'
+     +'<rect x="'+bx.toFixed(1)+'" y="'+(cy-6)+'" width="'+bw.toFixed(1)+'" height="12" rx="2" fill="var(--accent)" fill-opacity="'+op+'"/>'
+     +(ext?'<circle cx="'+xb.toFixed(1)+'" cy="'+cy+'" r="4.5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>':'')
+     +'<text x="'+(W-2)+'" y="'+(cy+4)+'" text-anchor="end" font-size="'+(ext?12.5:11.5)+'" '+(ext?'font-weight="700" fill="var(--fg)"':'fill="var(--muted)"')+'>'+pct(r.v)+'</text></g>';
+  });
+  host.innerHTML=bkSvg(W,H,s,'แท่งแสดงการเปลี่ยนแปลงราคาเช่า '+WIN_N+' สัปดาห์ของ '+rows.length+' รุ่น เรียงจากมากไปน้อย');
+}
+/* card 2: dumbbell */
+function bkDumb(host){
+  const W=host.clientWidth,dv=k=>D.derived[k];
+  const sd=MODELS.map(m=>m.key).filter(k=>isN(dv(k).spot_discount_latest_pct)&&(isN(win(k).sa)||win(k).saBad))
+    .map(k=>{const a=isN(win(k).sa)?win(k).sa:null,b=dv(k).spot_discount_latest_pct;return {k,a,b,d:a==null?null:b-a}})
+    .sort((x,y)=>(x.d==null)-(y.d==null)||(x.d==null?0:x.d-y.d));
+  if(!sd.length){host.innerHTML='';return}
+  const vv=sd.filter(x=>x.a!=null),allv=[].concat(...sd.map(x=>x.a==null?[x.b]:[x.a,x.b]));
+  const SC=Math.max(70,Math.ceil(Math.max(...allv)/10)*10),LO=Math.min(0,Math.floor(Math.min(...allv)/10)*10);
+  const labW=64,x0=labW+6,pw=Math.max(60,W-x0-8),rh=26,top=4,H=top+sd.length*rh+20;
+  const sx=v=>x0+(v-LO)/(SC-LO)*pw, bn=vv.length&&vv[0].d<-0.05?vv[0]:null, bw=vv.length&&vv[vv.length-1].d>0.05?vv[vv.length-1]:null;
+  let s='';
+  for(let t=LO;t<=SC;t+=10){s+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+top+'" y2="'+(top+sd.length*rh)+'" stroke="var(--line)" '+(t===0?'':'stroke-dasharray="2 3"')+'/>';if(t%20===0||t===SC)s+='<text x="'+sx(t)+'" y="'+(H-5)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+bkSgn(t)+'%</text>'}
+  sd.forEach((x,i)=>{
+    const y=top+i*rh,cy=y+rh/2,hl=(bn&&x.k===bn.k)||(bw&&x.k===bw.k),xb=sx(x.b),miss=x.a==null,xa=miss?xb:sx(x.a),lx=Math.min(xa,xb),rx=Math.max(xa,xb);
+    const word=miss?'':x.d<-0.05?'แคบลง':x.d>0.05?'กว้างขึ้น':'คงที่';
+    const tipT=miss?nmOf(x.k)+'\nส่วนลด spot ล่าสุด '+bkN(x.b)+'%\n'+SPOT_BAD:nmOf(x.k)+'\nส่วนลด spot '+bkN(x.a)+'% ('+WIN_N+' สัปดาห์ก่อน) → '+bkN(x.b)+'% (ล่าสุด)\n'+word+' '+ppt(x.d);
+    s+='<g data-tip="'+attr(tipT)+'" tabindex="0" aria-label="'+attr(tipT.replace(/\n/g,' '))+'"><rect x="0" y="'+y+'" width="'+W+'" height="'+rh+'" fill="transparent" class="fo" rx="3"/>'
+     +'<text x="'+(labW-2)+'" y="'+(cy+4)+'" text-anchor="end" font-size="11.5" '+(hl?'font-weight="700" fill="var(--fg)"':'fill="var(--muted)"')+'>'+esc(nmOf(x.k))+'</text>'
+     +(miss?'':'<line x1="'+lx.toFixed(1)+'" x2="'+rx.toFixed(1)+'" y1="'+cy+'" y2="'+cy+'" stroke="var(--accent)" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>'
+     +'<circle cx="'+xa.toFixed(1)+'" cy="'+cy+'" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>')
+     +'<circle cx="'+xb.toFixed(1)+'" cy="'+cy+'" r="5" fill="var(--accent)"/>';
+    if(miss){
+      s+='<svg x="'+(xb+10).toFixed(1)+'" y="'+(cy-6)+'" width="12" height="12" viewBox="0 0 12 12" class="ic ic-warn" aria-hidden="true"><path d="M6 1 11.2 10.4H.8z"/><path d="M6 4.4v2.8M6 8.3v.1" stroke="var(--surface)" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>'
+       +'<text class="th" x="'+(xb+25).toFixed(1)+'" y="'+(cy+3.8)+'" font-size="10" fill="var(--muted)">เทียบไม่ได้</text>';
+    }else if(hl){
+      const aHi=x.a>=x.b, lt=function(v,xx,right,bold){return '<text x="'+(right?xx+9:xx-9).toFixed(1)+'" y="'+(cy+3.8)+'" text-anchor="'+(right?'start':'end')+'" font-size="10.5" '+(bold?'font-weight="700" fill="var(--fg)"':'fill="var(--muted)"')+'>'+bkN(v)+'%</text>'};
+      const lowX=Math.min(xa,xb);
+      if(lowX-9-40<x0-2)s+='<text x="'+(Math.max(xa,xb)+9).toFixed(1)+'" y="'+(cy+3.8)+'" font-size="10.5" fill="var(--muted)">'+bkN(x.a)+'% <tspan font-weight="700" fill="var(--fg)">→ '+bkN(x.b)+'%</tspan></text>';
+      else s+=lt(x.a,xa,aHi,false)+lt(x.b,xb,!aHi,true);
+    }
+    s+='</g>';
+  });
+  host.innerHTML=bkSvg(W,H,s,'กราฟส่วนลด spot ของแต่ละรุ่น เทียบ '+WIN_N+' สัปดาห์ก่อนกับล่าสุด');
+}
+/* card 3: quadrant scatter */
+function bkScatter(host){
+  const W=host.clientWidth,dv=k=>D.derived[k];
+  const pts=MODELS.map(m=>({k:m.key,x:win(m.key).o,y:win(m.key).p,rg:regKey(win(m.key).reg)})).filter(p=>isN(p.x)&&isN(p.y));
+  if(!pts.length){host.innerHTML='';return}
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const xlo=Math.min(-20,Math.floor((Math.min(...xs)-8)/10)*10),xhi=Math.max(40,Math.ceil((Math.max(...xs)+8)/10)*10);
+  const ylo=Math.min(-20,Math.floor((Math.min(...ys)-8)/10)*10),yhi=Math.max(40,Math.ceil((Math.max(...ys)+8)/10)*10);
+  const H=W<420?300:Math.round(Math.max(300,Math.min(340,W*.56)));
+  const ml=42,mr=10,mt=8,mb=36,pw=W-ml-mr,ph=H-mt-mb;
+  const sx=v=>ml+(v-xlo)/(xhi-xlo)*pw, sy=v=>mt+ph-(v-ylo)/(yhi-ylo)*ph, TH=REG_TH;
+  let g='<rect x="'+ml+'" y="'+mt+'" width="'+pw+'" height="'+ph+'" fill="none" stroke="var(--line)"/>';
+  g+='<rect x="'+sx(-TH)+'" y="'+mt+'" width="'+(sx(TH)-sx(-TH))+'" height="'+ph+'" fill="var(--muted)" fill-opacity=".16"/>'
+    +'<rect x="'+ml+'" y="'+sy(TH)+'" width="'+pw+'" height="'+(sy(-TH)-sy(TH))+'" fill="var(--muted)" fill-opacity=".16"/>';
+  bkTicks(xlo,xhi).forEach(t=>{g+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+(mt+ph)+'" y2="'+(mt+ph+3)+'" stroke="var(--muted)"/><text x="'+sx(t)+'" y="'+(mt+ph+14)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+bkSgn(t)+'</text>'});
+  bkTicks(ylo,yhi).forEach(t=>{g+='<line x1="'+(ml-3)+'" x2="'+ml+'" y1="'+sy(t)+'" y2="'+sy(t)+'" stroke="var(--muted)"/><text x="'+(ml-6)+'" y="'+(sy(t)+3.5)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+bkSgn(t)+'</text>'});
+  g+='<line x1="'+sx(0)+'" x2="'+sx(0)+'" y1="'+mt+'" y2="'+(mt+ph)+'" stroke="var(--muted)" stroke-width="1.2"/><line x1="'+ml+'" x2="'+(ml+pw)+'" y1="'+sy(0)+'" y2="'+sy(0)+'" stroke="var(--muted)" stroke-width="1.2"/>';
+  g+='<text class="th" x="'+(ml+pw/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11.5" fill="var(--fg)">แพ็กเกจเช่า (%)</text>'
+    +'<text class="th" transform="translate(11 '+(mt+ph/2)+') rotate(-90)" text-anchor="middle" font-size="11.5" fill="var(--fg)">ราคาเช่า (%)</text>';
+  host.innerHTML=bkSvg(W,H,g,'');
+  const svg=host.firstChild;
+  const meas=(t,fs,cls,bold)=>{const e=document.createElementNS('http://www.w3.org/2000/svg','text');e.setAttribute('font-size',fs);if(cls)e.setAttribute('class',cls);if(bold)e.setAttribute('font-weight','700');e.textContent=t;svg.appendChild(e);const b=e.getBBox();svg.removeChild(e);return {w:b.width,h:b.height}};
+  const obst=[];
+  const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+  const corner=(k,right,bottom)=>{
+    const m=meas(REG[k].lbl,12,'th',true),w=m.w+17,h=15,x=right?ml+pw-w-5:ml+5,y=bottom?mt+ph-h-5:mt+5;
+    obst.push({x:x-2,y:y-2,w:w+4,h:h+4});
+    const ic=REG[k].ic.replace('<svg ','<svg style="color:'+REG[k].c+'" x="'+x+'" y="'+(y+1.5)+'" width="12" height="12" ');
+    return ic+'<text class="th" x="'+(x+16)+'" y="'+(y+12)+'" font-size="12" font-weight="700" fill="'+REG[k].c+'">'+REG[k].lbl+'</text>';
+  };
+  let o=corner('tightening',false,false)+corner('demandUp',true,false)+corner('demandDown',false,true)+corner('loosening',true,true);
+  {const t='ยังไม่ชัด ±'+REG_TH+'%',m=meas(t,10,'th'),x=ml+pw-m.w-5,y=sy(TH)-m.h-1;obst.push({x:x-1,y:y,w:m.w+2,h:m.h});o+='<text class="th" x="'+x+'" y="'+(y+m.h-3)+'" font-size="10" fill="var(--muted)">'+t+'</text>'}
+  const R=5.5;
+  const dots=pts.map(p=>({p,cx:sx(p.x),cy:sy(p.y)}));
+  const dotR=dots.map(d=>({x:d.cx-R-1,y:d.cy-R-1,w:2*R+2,h:2*R+2,d}));
+  const placed=[],plotB={x:ml+1,y:mt+1,w:pw-2,h:ph-2};
+  const cand=[[9,0,1],[-9,0,0],[13,-13,1],[13,13,1],[-13,13,0],[-13,-13,0],[22,-22,1],[22,22,1],[-22,-22,0],[-22,22,0],[34,0,1],[-34,0,0]];
+  dots.slice().sort((a,b)=>a.cy-b.cy).forEach(d=>{
+    const nm=nmOf(d.p.k),sub=d.p.rg==='mixed'?'ยังไม่ชัด':'',mn=meas(nm,11,'',true),ms=sub?meas(sub,9.5,'th'):{w:0,h:0};
+    const lw=Math.max(mn.w,ms.w),lh=11+(sub?10:0)+2;
+    let best=null;
+    cand.forEach((c,ci)=>{
+      const start=!!c[2],x=start?d.cx+c[0]:d.cx+c[0]-lw,y=d.cy+c[1]-6.5;
+      const r={x:x,y:y,w:lw,h:lh};
+      if(r.x<plotB.x||r.y<plotB.y||r.x+r.w>plotB.x+plotB.w||r.y+r.h>plotB.y+plotB.h)return;
+      if(obst.some(b=>hit(r,b))||dotR.some(b=>b.d!==d&&hit(r,b))||placed.some(b=>hit(r,b)))return;
+      let cost=ci*0.3;
+      if(r.x<sx(0)&&r.x+r.w>sx(0))cost+=2;
+      if(r.y<sy(0)&&r.y+r.h>sy(0))cost+=2;
+      if(!best||cost<best.cost)best={cost,r,c,start};
+    });
+    if(!best){best={r:{x:d.cx+9,y:d.cy-6.5,w:lw,h:lh},c:cand[0],start:true}}
+    placed.push(best.r);
+    const r=best.r,tx=best.start?r.x:r.x+r.w,anc=best.start?'start':'end';
+    if(Math.abs(best.c[0])>10||best.c[1]!==0){
+      const ex=best.start?r.x-2:r.x+r.w+2,ey=r.y+6.5,ang=Math.atan2(ey-d.cy,ex-d.cx);
+      o+='<line x1="'+(d.cx+Math.cos(ang)*R).toFixed(1)+'" y1="'+(d.cy+Math.sin(ang)*R).toFixed(1)+'" x2="'+ex.toFixed(1)+'" y2="'+ey.toFixed(1)+'" stroke="var(--muted)" stroke-width="1"/>';
+    }
+    o+='<text x="'+tx.toFixed(1)+'" y="'+(r.y+10)+'" text-anchor="'+anc+'" font-size="11" font-weight="700" fill="'+(ewOf(d.p.k)?'var(--warn)':'var(--fg)')+'">'+esc(nm)+'</text>'
+      +(sub?'<text class="th" x="'+tx.toFixed(1)+'" y="'+(r.y+20)+'" text-anchor="'+anc+'" font-size="9.5" fill="var(--muted)">'+sub+'</text>':'');
+  });
+  bkPts=dots.map(d=>{const p=d.p,rg=REG[p.rg],ew=ewOf(p.k);return {cx:d.cx,cy:d.cy,tip:nmOf(p.k)+'\nแพ็กเกจเช่า '+pct(p.x)+'\nราคาเช่า '+pct(p.y)+'\n'+tmk(rg.t,rg.lbl+': '+REG_MEAN[p.rg])+(ew?'\n'+tmk('var(--tp-warn)','เริ่มเปลี่ยน: 4 สัปดาห์ = '+REG[ew.r4].lbl):'')}});
+  dots.forEach((d,i)=>{
+    const hollow=d.p.rg==='mixed',t=bkPts[i].tip;
+    o+='<g data-tip="'+attr(t)+'" tabindex="0" aria-label="'+attr(tplain(t).replace(/\n/g,' '))+'"><circle class="fo" cx="'+d.cx.toFixed(1)+'" cy="'+d.cy.toFixed(1)+'" r="11" fill="transparent"/>'
+      +(BK_OPEN&&bkKeys(BK_OPEN).indexOf(d.p.k)>=0?'<circle class="bk-sel" cx="'+d.cx.toFixed(1)+'" cy="'+d.cy.toFixed(1)+'" r="13" fill="none" stroke="var(--fg)" stroke-width="1.6" stroke-dasharray="3 2"/>':'')
+      +(ewOf(d.p.k)?'<circle class="ew-ring" cx="'+d.cx.toFixed(1)+'" cy="'+d.cy.toFixed(1)+'" r="9.5" fill="none" stroke="var(--warn)" stroke-width="1.6"/>':'')
+      +'<circle cx="'+d.cx.toFixed(1)+'" cy="'+d.cy.toFixed(1)+'" r="'+R+'" fill="'+(hollow?'var(--surface)':(ewOf(d.p.k)?'var(--warn)':'var(--accent)'))+'" stroke="'+(hollow?(ewOf(d.p.k)?'var(--warn)':'var(--accent)'):'var(--surface)')+'" stroke-width="'+(hollow?2:1.5)+'"/></g>';
+  });
+  svg.insertAdjacentHTML('beforeend',o);
+  svg.setAttribute('aria-label','แผนที่ราคาเช่ากับแพ็กเกจเช่า ใน '+WIN_N+' สัปดาห์ของ '+pts.length+' รุ่น');
+  svg.addEventListener('click',e=>{
+    const r=svg.getBoundingClientRect(),sc=W/r.width,mx=(e.clientX-r.left)*sc,my=(e.clientY-r.top)*sc;
+    const h=bkPts.filter(q=>Math.hypot(q.cx-mx,q.cy-my)<=13);
+    if(h.length)tipShow(h.map(q=>q.tip).join('\n\n'),e.clientX,e.clientY);
+  });
+}
+
+/* ---- per-model paragraph ---- */
+const dword=(v,u,d,f)=>!isN(v)||Math.abs(v)<0.05?f:(v>0?u:d);
+function modelLede(m){
+  const k=m.key,d=D.derived[k],rk=regKey(d.supply_regime);
+  const w=win(k),sdA=w.sa, sdB=d.spot_discount_latest_pct;
+  const s1=[ 'ราคาเปลี่ยนต่อปี '+dx(d.decay_annualized_52w_pct)+' (on-demand ล่าสุด '+nb('$'+px(d.latest_on_demand_median)+' ต่อ GPU-ชม.')+')',
+    'เปลี่ยน '+dx(d.price_change_4w_pct)+' ใน '+nb('4 สัปดาห์')+' '+dx(d.price_change_13w_pct)+' ใน '+nb('13 สัปดาห์')+' '+dx(d.price_change_52w_pct)+' ใน '+nb('52 สัปดาห์')];
+  let s2=[];
+  if(isN(sdA)&&isN(sdB)){
+    if(sdB<sdA-0.05)s2=['ส่วนลด spot '+nb('แคบลง')+' จาก '+nb(sdA.toFixed(1)+'%')+' เหลือ '+nb(sdB.toFixed(1)+'%'),'หมายถึงราคา spot ขยับเข้าใกล้ on-demand มากขึ้น'];
+    else if(sdB>sdA+0.05)s2=['ส่วนลด spot '+nb('กว้างขึ้น')+' จาก '+nb(sdA.toFixed(1)+'%')+' เป็น '+nb(sdB.toFixed(1)+'%'),'หมายถึงราคา spot ห่างจาก on-demand มากขึ้น'];
+    else s2=['ส่วนลด spot '+nb('คงที่ที่ '+sdB.toFixed(1)+'%')];
+  }else if(isN(sdB))s2=['ส่วนลด spot ล่าสุด '+nb(sdB.toFixed(1)+'%'),w.saBad?SPOT_BAD:'ยังไม่มีข้อมูล '+WIN_N+' สัปดาห์ก่อนเทียบ'];
+  const rgw=q=>'<span class="nb rg-'+q+'" style="font-weight:600">‘'+REG[q].lbl+'’</span>';
+  const s3=['สภาพอุปทาน '+rgw(rk)+' ใน '+WIN_N+' สัปดาห์',
+    'ราคา on-demand '+dx(w.p)+' '+nb('ขณะที่จำนวนแพ็กเกจเช่า')+' '+dx(w.o)+' '+nb('และผู้ให้บริการ')+' '+dx(w.v),
+    REG_MEAN[rk]];
+  let h='<span class="tg">สรุปรุ่นนี้ จากข้อมูล</span><p>'+lns(s1)+'</p>'+(s2.length?'<p>'+lns(s2)+'</p>':'')+'<p>'+lns(s3)+'</p>';
+  const ew=ewOf(k);
+  if(ew)h+='<p class="ewg"><span class="ewh">'+EW_IC+' สัญญาณเริ่มเปลี่ยน</span>'+lns(['4 สัปดาห์ล่าสุดเป็น '+rgw(ew.r4)+' '+nb('ติดกัน 2 สัปดาห์'),'ขณะที่ภาพ 13 สัปดาห์ยังเป็น '+rgw(ew.r13),nb('ยังไม่ยืนยัน')+' '+nb('ต้องดูว่าภาพ 13 สัปดาห์')+' '+nb('จะเปลี่ยนตามหรือไม่')])+'</p>';
+  if(isThin(k))h+='<p class="cav">'+WARN_ICON+'<span>'+lns(['ข้อมูลรุ่นนี้บาง','ผู้ให้บริการต่ำสุด '+nb(d.min_provider_count_13w+' ราย')+' ใน 13 สัปดาห์','ราคาซ้ำค่าเดิม '+nb(d.repeated_value_weeks+' จาก '+D.weekly[k].length+' สัปดาห์'),'ตัวเลขข้างต้นอาจไม่สะท้อนตลาดจริง ควรอ่านอย่างระวัง'])+'</span></p>';
+  h+='<button type="button" class="btn go" id="openCmp"><svg class="ic" viewBox="0 0 12 12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M2 6h8M7 3l3 3-3 3"/></svg>เปิดในหน้าเปรียบเทียบ</button>';
+  return h;
+}
+
+/* ---- tabs + hash ---- */
+let tab='overview';
+function writeHash(){
+  const h='tab='+tab+'&f='+focus+'&m='+CS.m.join(',')+'&s='+CS.s.join(',')+'&k='+CS.k+'&sc='+CS.sc+'&r='+CS.r+'&o='+CS.o+'&w='+WIN_N;
+  try{history.replaceState(null,'','#'+h)}catch(e){try{location.hash=h}catch(e2){}}
+}
+function applyHash(){
+  const h=(location.hash||'').replace(/^#/,'');if(!h)return;
+  const o={};h.split('&').forEach(p=>{const i=p.indexOf('=');if(i>0){try{o[p.slice(0,i)]=decodeURIComponent(p.slice(i+1))}catch(e){}}});
+  if(o.tab==='compare'||o.tab==='overview')tab=o.tab;
+  if(o.f&&D.derived[o.f])focus=o.f;
+  if('m' in o)CS.m=o.m?o.m.split(',').filter(x=>D.derived[x]):[];
+  if('s' in o)CS.s=o.s?o.s.split(',').filter(x=>CMP_STOCKS.indexOf(x)>=0):[];
+  if(o.k&&METRICS.some(m=>m.k===o.k))CS.k=o.k;
+  if(o.sc==='abs'||o.sc==='idx')CS.sc=o.sc;
+  if(['13','26','52'].indexOf(o.r)>=0)CS.r=+o.r;
+  if(o.o&&/^[a-z0-9]+\.[ad]$/.test(o.o)&&COLS.some(c=>c[0]===o.o.split('.')[0]))CS.o=o.o;
+}
+function setTab(t){
+  tab=t;
+  $$('.tabs [role="tab"]').forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1});
+  $('#panel-overview').hidden=t!=='overview';
+  $('#panel-compare').hidden=t!=='compare';
+  if(t==='compare'){
+    const rd=$('#railD');if(rd&&!rd.dataset.init){rd.dataset.init='1';rd.open=$('#panel-compare').clientWidth>=900}
+    cmpRender();
+  }else{renderDetailChart();renderStockChart();const hw=$('#hmWrap');if(hw&&!hw.dataset.sc){hw.scrollLeft=hw.scrollWidth;hw.dataset.sc='1'}}
+  writeHash();
+}
+$('.tabs').addEventListener('click',e=>{const b=e.target.closest('[role="tab"]');if(b&&D)setTab(b.dataset.tab)});
+$('.tabs').addEventListener('keydown',e=>{
+  const tabs=$$('.tabs [role="tab"]');const i=tabs.indexOf(document.activeElement);if(i<0||!D)return;
+  let n=i;if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i-1+tabs.length)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;
+  e.preventDefault();tabs[n].focus();setTab(tabs[n].dataset.tab);
+});
+addEventListener('hashchange',()=>{if(!D)return;const w0=WIN_N;winFromHash();if(WIN_N!==w0){winApply();render();return}const t0=tab;applyHash();setFocus(focus);setTab(tab)});
+
+/* ---- compare tab ---- */
+const CMP_STOCKS=['NVDA','CRWV','NBIS','ORCL'];
+const STK_DASH={NVDA:'6 3',CRWV:'2 3',NBIS:'9 3 2 3',ORCL:'1 3.5'};
+const METRICS=[
+ {k:'od',label:'On-demand (มัธยฐาน)',unit:'$/GPU-ชม.',type:'usd',get:r=>r.on_demand_median},
+ {k:'spot',label:'Spot (มัธยฐาน)',unit:'$/GPU-ชม.',type:'usd',get:r=>r.spot_median},
+ {k:'res',label:'เช่ารายเดือน 1m (มัธยฐาน)',unit:'$/GPU-ชม.',type:'usd',get:r=>r.reservation_1m_median},
+ {k:'disc',label:'ส่วนลด spot เทียบ on-demand',unit:'%',type:'pct',get:r=>(isN(r.on_demand_median)&&isN(r.spot_median)&&r.on_demand_median>0)?(1-r.spot_median/r.on_demand_median)*100:null},
+ {k:'off',label:'จำนวนแพ็กเกจเช่า',unit:'แพ็กเกจ',type:'cnt',get:r=>r.offering_count},
+ {k:'prov',label:'จำนวนผู้ให้บริการ (provider)',unit:'ราย',type:'cnt',get:r=>r.provider_count}
+];
+const CS={m:['b200','h200','h100','a100'],s:[],k:'od',sc:'abs',r:52,o:'od.d'};
+const cIdx=()=>CS.sc==='idx'&&CS.k!=='disc';
+const mtr=()=>METRICS.find(x=>x.k===CS.k);
+const fmtM=(t,v)=>!isN(v)?'—':(t==='usd'?usd(v):t==='pct'?v.toFixed(1)+'%':String(Math.round(v)));
+const SWL=(c,dash)=>'<svg viewBox="0 0 16 6" aria-hidden="true"><path d="M0 3h16" style="stroke:'+c+';stroke-width:2.4;'+(dash?'stroke-dasharray:'+dash:'')+'"/></svg>';
+const COLS=[['model','รุ่น','l'],['vram','VRAM'],['od','On-demand<br>ล่าสุด'],['spot','Spot<br>ล่าสุด'],['disc','ส่วนลด spot<br>ตอนนี้ / 13w ก่อน'],['c4','เปลี่ยน<br>4w'],['c13','เปลี่ยน<br>13w'],['c52','เปลี่ยน<br>52w'],['decay','ราคาเปลี่ยนต่อปี'],['regime','สภาพอุปทาน'],['prov','ผู้ให้บริการ<br>(ราย)'],['rps','RunPod<br>secure','s'],['rpc','RunPod<br>community'],['vm','Vast<br>median'],['vg','Vast<br>GPU']];
+
+function buildCompare(){
+  const chipM=MODELS.map(m=>'<button type="button" class="chip cm" data-cm="'+m.key+'" aria-pressed="false" style="--chipc:var(--c-'+m.key+')"><i class="sw" style="background:var(--c-'+m.key+')"></i>'+esc(short(m))+(isThin(m.key)?'<span data-tip="'+attr(thinTip(m.key))+'" style="display:inline-flex">'+WARN_ICON+'</span>':'')+'</button>').join('');
+  const chipS=CMP_STOCKS.map(s=>'<button type="button" class="chip cm cs" data-cs="'+s+'" aria-pressed="false" style="--chipc:var(--c-'+s+')"><i class="sw" style="background:var(--c-'+s+')"></i><span class="mono" style="font-size:12px">'+s+'</span></button>').join('');
+  const mo=METRICS.map(m=>'<button type="button" class="mopt" data-ck="'+m.k+'" aria-pressed="false">'+esc(m.label)+'</button>').join('');
+  const th=COLS.map(c=>'<th scope="col" data-col="'+c[0]+'" class="'+(c[2]||'')+(c[0]==='rps'?' sep':'')+'"><button type="button" data-sort="'+c[0]+'">'+c[1]+'<svg class="so" viewBox="0 0 9 12" aria-hidden="true"><path d="M4.5.5 8 4.6H1zM4.5 11.5 1 7.4h7z"/></svg></button></th>').join('');
+  return '<div class="cmp"><details class="rail" id="railD"><summary><span>ตัวควบคุม</span><span class="sum" id="railSum"></span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="rb">'
+   +'<div class="rsec"><h3><span class="t">รุ่น GPU</span><span><button class="lnk" type="button" id="cAll">ทั้งหมด</button> · <button class="lnk" type="button" id="cNone">ล้าง</button></span></h3><div class="chips" role="group" aria-label="เลือกรุ่น GPU">'+chipM+'</div></div>'
+   +'<div class="rsec"><h3><span class="t">หุ้นเทียบ</span><span class="mono" style="font-size:10.5px">โหมดดัชนีเท่านั้น</span></h3><div class="chips" role="group" aria-label="เลือกหุ้น">'+chipS+'</div><p class="note" id="cStockNote"></p></div>'
+   +'<div class="rsec"><h3><span class="t">ตัวชี้วัด</span></h3><div class="mopts" role="group" aria-label="ตัวชี้วัด">'+mo+'</div></div>'
+   +'<div class="rsec"><h3><span class="t">มาตราส่วน</span></h3><div class="seg" role="group" aria-label="มาตราส่วน"><button type="button" data-csc="abs">$ จริง</button><button type="button" data-csc="idx">ดัชนี =100</button></div><p class="note" id="cScNote"></p></div>'
+   +'<div class="rsec"><h3><span class="t">ช่วงเวลา</span></h3><div class="seg" role="group" aria-label="ช่วงเวลา">'+[13,26,52].map(n=>'<button type="button" data-cr="'+n+'">'+n+' สัปดาห์</button>').join('')+'</div></div>'
+   +'<div class="rsec"><button class="btn" type="button" id="cReset">รีเซ็ตตัวควบคุม</button><p class="note">'+lns(['ตัวเลือกทั้งหมดอยู่ในลิงก์ (#)','เปิดซ้ำหรือบุ๊กมาร์กได้'])+'</p></div>'
+   +'</div></details>'
+   +'<div style="min-width:0">'
+   +'<section class="panel" style="margin-top:0" aria-labelledby="cH1"><header class="ph"><span class="code">B1</span><h2 id="cH1">กราฟเปรียบเทียบ</h2><span class="hint" id="cMeta"></span></header><div class="detail"><div class="lgrow" id="cLegend"></div><div class="chartbox" id="cChart"></div><div class="hints" id="cHints"></div></div></section>'
+   +'<section class="panel" aria-labelledby="cH2"><header class="ph"><span class="code">B2</span><h2 id="cH2">ตารางเปรียบเทียบ</h2><span class="hint" id="cTabMeta"></span></header><div class="scroll"><table class="ct" id="cTable"><thead><tr class="grp"><th colspan="2" style="border-left:0"></th><th colspan="2">ราคาเช่าล่าสุด (รายสัปดาห์)</th><th colspan="1">ส่วนลด</th><th colspan="4">ราคาเปลี่ยน</th><th colspan="2">อุปทาน</th><th colspan="1">ผู้ให้บริการ</th><th colspan="4" id="cDayGrp">สแนปช็อตรายวัน</th></tr><tr>'+th+'</tr></thead><tbody id="cBody"></tbody></table></div><p class="note">'+lns(['แสดงทุกรุ่น ไม่ขึ้นกับรุ่นที่เลือกในกราฟ (แถบสีซ้ายคือรุ่นที่เลือกอยู่)', 'กดชื่อรุ่นเพื่อเลือกหรือเลิกเลือก', 'กดหัวคอลัมน์เพื่อเรียงลำดับ', 'ความเข้มสีน้ำเงินบอกขนาดการเปลี่ยนแปลง', 'ลูกศรบอกทิศทาง', 'ราคาเปลี่ยนต่อปี = อัตราเปลี่ยนแปลงต่อปีของราคา on-demand (ค่าบวก = ราคาเช่าสูงขึ้น)', 'คอลัมน์สแนปช็อตรายวันเป็นข้อมูลวันเดียว'])+'</p></section>'
+   +'</div></div>';
+}
+function stockAtDate(sym,date){
+  const w=D.stocks[sym]&&D.stocks[sym].weekly;if(!w||!w.length||date<w[0].date)return null;
+  let v=null;for(let i=0;i<w.length;i++){if(w[i].date<=date)v=w[i].close;else break}
+  return isN(v)?v:null;
+}
+function cmpSeries(){
+  const dates=D.weekly[MODELS[0].key].map(r=>r.date).slice(-(CS.r+1)), mt=mtr(), idx=cIdx(), list=[];
+  CS.m.forEach(k=>{
+    const m=MODELS.find(x=>x.key===k);if(!m)return;
+    const by={};D.weekly[k].forEach(r=>by[r.date]=r);
+    list.push({id:k,label:short(m),color:'var(--c-'+k+')',w:2.3,abs:dates.map(d=>{const v=by[d]?mt.get(by[d]):null;return isN(v)?v:null}),warn:isThin(k)});
+  });
+  if(idx)CS.s.forEach(sy=>list.push({id:sy,label:sy,color:'var(--c-'+sy+')',dash:STK_DASH[sy],w:1.7,stock:1,abs:dates.map(d=>stockAtDate(sy,d))}));
+  let base=-1,fallback=false;
+  if(idx&&list.length){
+    for(let i=0;i<dates.length;i++){if(list.every(s=>isN(s.abs[i])&&s.abs[i]!==0)){base=i;break}}
+    if(base<0)fallback=true;
+  }
+  list.forEach(s=>{
+    if(!idx){s.plot=s.abs.slice();return}
+    let b=null;
+    if(base>=0)b=s.abs[base];else{for(let j=0;j<s.abs.length;j++){if(isN(s.abs[j])&&s.abs[j]!==0){b=s.abs[j];break}}}
+    s.plot=s.abs.map(v=>(isN(v)&&isN(b)&&b!==0)?v/b*100:null);
+  });
+  return {dates,list,idx,base,fallback,mt};
+}
+function cmpSync(){
+  $$('[data-cm]').forEach(b=>b.setAttribute('aria-pressed',String(CS.m.indexOf(b.dataset.cm)>=0)));
+  $$('[data-cs]').forEach(b=>{b.setAttribute('aria-pressed',String(CS.s.indexOf(b.dataset.cs)>=0&&cIdx()));b.disabled=!cIdx()});
+  $$('[data-ck]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ck===CS.k)));
+  $$('[data-csc]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.csc===CS.sc));if(b.dataset.csc==='idx')b.disabled=CS.k==='disc'});
+  $$('[data-cr]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cr===CS.r)));
+  const sn=$('#cStockNote'),sc=$('#cScNote');
+  if(CS.k==='disc'){sn.innerHTML=lns(['หุ้นเทียบกับส่วนลด (%) ไม่ได้','เพราะเป็นเปอร์เซ็นต์อยู่แล้ว']);sc.textContent='ส่วนลด spot ใช้ได้เฉพาะ $ จริง'}
+  else if(CS.sc==='abs'){sn.innerHTML=lns(['หุ้นแสดงได้เฉพาะมาตราส่วนดัชนี','เพราะหน่วยต่างกัน'])+'<button type="button" class="lnk" id="cGoIdx">สลับเป็นดัชนี</button>';sc.textContent='ดัชนี: สัปดาห์แรกที่ทุกเส้นมีค่า = 100'}
+  else{sn.textContent='หุ้นที่เข้าตลาดทีหลังจะใช้สัปดาห์ร่วมแรกเป็นฐาน';sc.textContent='ดัชนี: สัปดาห์แรกที่ทุกเส้นมีค่า = 100'}
+  const mt=mtr();
+  $('#railSum').textContent=mt.label.replace(/ \(.*\)/,'')+' · '+CS.m.length+' รุ่น'+(cIdx()&&CS.s.length?' + '+CS.s.length+' หุ้น':'')+' · '+CS.r+'w';
+}
+function cmpRender(){
+  if(!D||!$('#cChart'))return;
+  cmpSync();cmpChart();cmpTable();writeHash();
+}
+function cmpChart(){
+  const host=$('#cChart');if(!host||!host.clientWidth)return;
+  const B=cmpSeries(),mt=B.mt,n=B.dates.length;
+  $('#cMeta').textContent=mt.label+' · '+(B.idx?'ดัชนี (ฐาน=100)':mt.unit)+' · '+fmtDs(B.dates[0])+' → '+fmtDs(B.dates[n-1]);
+  $('#cLegend').innerHTML=B.list.map(s=>{
+    let li=s.plot.length-1;while(li>=0&&!isN(s.plot[li]))li--;
+    let fi=0;while(fi<s.abs.length&&!isN(s.abs[fi]))fi++;
+    const chg=(li>=0&&fi<s.abs.length&&li!==fi&&s.abs[fi])?(s.abs[li]/s.abs[fi]-1)*100:null;
+    const val=li<0?'—':(B.idx?s.plot[li].toFixed(1):fmtM(mt.type,s.plot[li]));
+    return '<span class="lgi">'+SWL(s.color,s.dash)+esc(s.label)+(s.warn?'<span data-tip="'+attr(thinTip(s.id))+'" style="display:inline-flex">'+WARN_ICON+'</span>':'')+'<b>'+val+'</b>'+((B.idx||mt.type==='pct')?'':'<span class="dirx">'+arrow(chg)+pct(chg)+'</span>')+'</span>';
+  }).join('');
+  const hints=[];
+  if(B.idx){
+    if(B.base>=0)hints.push('<span>ฐาน = 100 ที่สัปดาห์ <span class="mono">'+fmtD(B.dates[B.base])+'</span></span>');
+    else if(B.list.length)hints.push('<span class="warnt">'+lns(['ไม่มีสัปดาห์ที่ทุกเส้นมีข้อมูลพร้อมกัน','ใช้สัปดาห์แรกที่มีข้อมูลของแต่ละเส้นเป็นฐาน'])+'</span>');
+    hints.push('<span>เส้นประ = หุ้น (ราคาปิดสัปดาห์ Yahoo Finance)</span>');
+  }
+  hints.push('<span>ข้อมูลรายสัปดาห์ เริ่ม 17 พ.ย. 2568</span>','<span>เลื่อนเมาส์หรือกดลูกศรซ้ายขวาที่กราฟเพื่อดูทุกเส้นในสัปดาห์เดียวกัน</span>');
+  $('#cHints').innerHTML=hints.join('');
+  const has=B.list.some(s=>s.plot.some(isN));
+  if(!B.list.length||!has){host.innerHTML='<div class="empty">'+(B.list.length?'ไม่มีข้อมูลของตัวชี้วัดนี้ในช่วงที่เลือก':'เลือกรุ่น GPU อย่างน้อยหนึ่งรุ่นจากตัวควบคุม')+'</div>';return}
+  drawChart(host,{dates:B.dates,ref:B.idx?100:null,zero:!B.idx&&mt.type!=='pct',sortTip:true,
+    yFmt:v=>B.idx?String(Math.round(v)):mt.type==='usd'?('$'+(v<1?v.toFixed(2):v.toFixed(v<10?1:0))):mt.type==='pct'?Math.round(v)+'%':String(Math.round(v)),
+    aria:'กราฟเปรียบเทียบ '+mt.label+(B.idx?' ดัชนีฐาน 100':''),
+    series:B.list.map(s=>({on:true,label:s.label,color:s.color,w:s.w,dash:s.dash,values:s.plot,tipFmt:v=>!isN(v)?'—':(B.idx?v.toFixed(1):fmtM(mt.type,v))}))});
+}
+function lastDay(k){const a=(D.daily[k]||[]).slice().sort((x,y)=>x.date<y.date?-1:1);return a.length?a[a.length-1]:null}
+function cmpRows(){
+  return MODELS.map((m,i)=>{
+    const w=D.weekly[m.key],l=w[w.length-1],dv=D.derived[m.key]||{},dl=lastDay(m.key)||{};
+    return {key:m.key,i,label:short(m),model:m.label,vram:m.vram_gb,od:l.on_demand_median,spot:l.spot_median,disc:dv.spot_discount_latest_pct,disc13:(WINC[13]||(WINC[13]=winCompute(13)))[m.key].saBad?null:dv.spot_discount_13w_ago_pct,disc13bad:(WINC[13]||(WINC[13]=winCompute(13)))[m.key].saBad,
+      c4:dv.price_change_4w_pct,c13:dv.price_change_13w_pct,c52:dv.price_change_52w_pct,decay:dv.decay_annualized_52w_pct,regime:dv.supply_regime,prov:l.provider_count,
+      rps:dl.runpod_secure,rpc:dl.runpod_community,vm:dl.vast_on_demand_median,vg:dl.vast_on_demand_gpu_count};
+  });
+}
+function cmpTable(){
+  const rows=cmpRows(),sp=CS.o.split('.'),key=sp[0],dir=sp[1]==='a'?1:-1;
+  rows.sort((a,b)=>{
+    let x=a[key],y=b[key];
+    if(key==='regime'){const o={tightening:0,demandUp:1,mixed:2,demandDown:3,loosening:4};x=o[x];y=o[y]}
+    if(key==='model')return dir*String(x).localeCompare(String(y));
+    const xn=!isN(x),yn=!isN(y);if(xn&&yn)return 0;if(xn)return 1;if(yn)return -1;return dir*(x-y);
+  });
+  const mx={c4:0,c13:0,c52:0,decay:0};rows.forEach(r=>Object.keys(mx).forEach(k=>{if(isN(r[k]))mx[k]=Math.max(mx[k],Math.abs(r[k]))}));
+  $$('#cTable thead th[data-col]').forEach(th=>{if(th.dataset.col===key)th.setAttribute('aria-sort',dir===1?'ascending':'descending');else th.removeAttribute('aria-sort')});
+  const shade=(v,max)=>{const a=isN(v)&&max>0?Math.min(1,Math.abs(v)/max):0;return '<span class="shade" style="background:color-mix(in srgb,var(--accent) '+Math.round(a*34)+'%,transparent)">'+arrow(v)+pct(v)+'</span>'};
+  $('#cBody').innerHTML=rows.map(r=>{
+    const sel=CS.m.indexOf(r.key)>=0,rk=regKey(r.regime),rg=REG[rk];
+    const diff=isN(r.disc)&&isN(r.disc13)?r.disc-r.disc13:null;
+    const dpart=isN(r.disc)?'<span class="cf">'+arrow(diff)+r.disc.toFixed(1)+'% <span class="dim">/ '+(isN(r.disc13)?r.disc13.toFixed(1)+'%':'—')+(r.disc13bad?'<span data-tip="'+attr(SPOT_BAD)+'" tabindex="0" style="display:inline-flex;margin-left:3px">'+WARN_ICON+'</span>':'')+'</span></span>':'<span class="dim">—</span>';
+    return '<tr class="'+(sel?'sel':'')+'" style="--mc:var(--c-'+r.key+')"><td><button type="button" class="nm" data-tm="'+r.key+'" aria-pressed="'+sel+'" aria-label="'+(sel?'เลิกเลือก ':'เลือก ')+attr(r.model)+'"><i></i>'+esc(r.label)+(isThin(r.key)?'<span data-tip="'+attr(thinTip(r.key))+'" style="display:inline-flex">'+WARN_ICON+'</span>':'')+'</button></td>'
+     +'<td>'+r.vram+' GB</td><td><b>'+usd(r.od)+'</b></td><td>'+usd(r.spot)+'</td><td>'+dpart+'</td>'
+     +'<td>'+shade(r.c4,mx.c4)+'</td><td>'+shade(r.c13,mx.c13)+'</td><td>'+shade(r.c52,mx.c52)+'</td><td>'+shade(r.decay,mx.decay)+'</td>'
+     +'<td style="font-family:IBM Plex Sans Thai,sans-serif"><span class="reg rg-'+rk+'" tabindex="0" data-tip="'+attr(REG_TIP)+'">'+rg.ic+rg.lbl+'</span>'+(ewOf(r.key)?' '+ewBadge(r.key):'')+'</td>'
+     +'<td>'+(isN(r.prov)?Math.round(r.prov):'—')+'</td>'
+     +'<td class="sep">'+usd(r.rps)+'</td><td>'+usd(r.rpc)+'</td><td>'+usd(r.vm)+'</td><td>'+(isN(r.vg)?r.vg:'—')+'</td></tr>';
+  }).join('');
+  const th=$('#cTable thead th[data-col="'+key+'"] button');
+  $('#cTabMeta').textContent='เรียงตาม '+(th?th.innerHTML.replace(/<br>/g,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim():'')+' '+(dir===1?'(น้อย ไป มาก)':'(มาก ไป น้อย)');
+  const snaps=(D.meta.daily_snapshots||[]).slice().sort(),last=snaps[snaps.length-1];
+  $('#cDayGrp').textContent='สแนปช็อตรายวัน'+(last?' '+fmtDs(last):'')+' (วันเดียว)';
+}
+function cmpToggle(arr,v){const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v)}
+document.addEventListener('click',e=>{
+  if(!D||!$('#panel-compare')||!$('#panel-compare').contains(e.target)&&!e.target.closest('#openCmp'))return;
+  const t=e.target;let c;
+  if(t.closest('#openCmp')){
+    CS.m=[focus].concat(CS.m.filter(x=>x!==focus)).slice(0,4);CS.k='od';CS.sc='abs';setTab('compare');
+    const p=$('.tabs');if(p)p.scrollIntoView({block:'start'});return;
+  }
+  if(c=t.closest('[data-cm]')){cmpToggle(CS.m,c.dataset.cm);cmpRender();return}
+  if(c=t.closest('[data-cs]')){if(!c.disabled){cmpToggle(CS.s,c.dataset.cs);cmpRender()}return}
+  if(c=t.closest('[data-tm]')){cmpToggle(CS.m,c.dataset.tm);cmpRender();return}
+  if(c=t.closest('[data-ck]')){CS.k=c.dataset.ck;if(CS.k==='disc')CS.sc='abs';cmpRender();return}
+  if(c=t.closest('[data-csc]')){if(!c.disabled){CS.sc=c.dataset.csc;cmpRender()}return}
+  if(c=t.closest('[data-cr]')){CS.r=+c.dataset.cr;cmpRender();return}
+  if(c=t.closest('[data-sort]')){const k=c.dataset.sort,cur=CS.o.split('.');CS.o=k+'.'+(cur[0]===k?(cur[1]==='a'?'d':'a'):(k==='model'?'a':'d'));cmpRender();return}
+  if(t.closest('#cAll')){CS.m=MODELS.map(m=>m.key);cmpRender();return}
+  if(t.closest('#cNone')){CS.m=[];cmpRender();return}
+  if(t.closest('#cGoIdx')){CS.sc='idx';cmpRender();return}
+  if(t.closest('#cReset')){CS.m=['b200','h200','h100','a100'];CS.s=[];CS.k='od';CS.sc='abs';CS.r=52;CS.o='od.d';cmpRender();return}
+});
+
+/* delegated clicks */
+document.addEventListener('click',e=>{
+  const f=e.target.closest('[data-focus]');
+  if(f&&D){setFocus(f.dataset.focus,true);return}
+  const v=e.target.closest('[data-vis]');
+  if(v){vis[v.dataset.vis]=!vis[v.dataset.vis];renderDetail();return}
+  const sv=e.target.closest('[data-svis]');
+  if(sv){const k=sv.dataset.svis;const on=Object.keys(stockVis).filter(x=>stockVis[x]);if(stockVis[k]&&on.length<=1)return;stockVis[k]=!stockVis[k];renderStock();return}
+  const hm=e.target.closest('[data-hm]');
+  if(hm){hmWeeks=+hm.dataset.hm;$$('[data-hm]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.hm===hmWeeks)));renderHeat();return}
+});
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.card')){e.preventDefault();setFocus(e.target.dataset.focus,true)}
+});
+
+function fail(msg){
+  $('#app').innerHTML='<div class="err" role="alert"><h2>โหลดข้อมูลไม่สำเร็จ</h2><p>'+esc(msg)+'</p><p>ถ้าเปิดไฟล์นี้ตรง ๆ จากเครื่อง (file://) เบราว์เซอร์อาจบล็อกการอ่านไฟล์ <span class="mono">gpu_data.json</span> — ให้เปิดผ่านเว็บเซิร์ฟเวอร์ หรือโฟลเดอร์ที่เผยแพร่แล้ว และตรวจว่าไฟล์อยู่ข้างไฟล์นี้</p></div>';
+  $('#asof').textContent='ไม่มีข้อมูล';
+}
+fetch('gpu_data.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('เซิร์ฟเวอร์ตอบกลับ HTTP '+r.status);return r.json()})
+ .then(j=>{D=j;MODELS=D.meta.models;winFromHash();winApply();try{render()}catch(err){console.error(err);fail('ข้อมูลมีรูปแบบที่ไม่คาดคิด ('+err.message+')')}})
+ .catch(err=>{console.error(err);fail(err&&err.message?err.message:'ไม่ทราบสาเหตุ')});
+})();
+</script>
+</body>
+</html>

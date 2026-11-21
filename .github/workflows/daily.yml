@@ -1,0 +1,77 @@
+name: daily
+
+# Collect RunPod + Vast.ai prices once a day, rebuild site/gpu_data.json, publish to GitHub Pages.
+# Two schedules (GitHub cron can run hours late or skip); the second run skips collection
+# when today's snapshot already exists, and only rebuilds (fresh weekly CSV + stock prices).
+on:
+  schedule:
+    - cron: "17 1 * * *"    # 08:17 Thailand
+    - cron: "47 13 * * *"   # 20:47 Thailand
+  workflow_dispatch:
+    inputs:
+      force_collect:
+        description: "Collect again even if today's snapshot exists"
+        type: boolean
+        default: false
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Collect daily snapshot
+        run: |
+          today=$(date -u +%F)
+          f="data/daily/$today.json"
+          if [ -f "$f" ] && [ "${{ inputs.force_collect }}" != "true" ] && python -c "import json,sys; d=json.load(open('$f')); sys.exit(1 if d.get('errors') else 0)"; then
+            echo "snapshot $f already complete, skipping collection"
+          else
+            python collect_daily.py
+          fi
+
+      - name: Build data
+        run: python build_data.py
+
+      - name: Commit data
+        run: |
+          git config user.name "gpu-rental-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/daily site/gpu_data.json
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "data: $(date -u +%F) daily update"
+          for i in 1 2 3; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep 5
+          done
+          exit 1
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
