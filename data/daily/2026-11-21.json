@@ -1,5 +1,5 @@
 {
- "captured_at": "2026-11-21T02:53:42+00:00",
+ "captured_at": "2026-11-21T08:01:34+00:00",
  "date": "2026-11-21",
  "notes": {
   "runpod": "api.runpod.io/graphql gpuTypes; USD per GPU-hour; price 0/null = not offered -> null. Headline = primary variant per model; others in runpod_variants.",
@@ -18,20 +18,20 @@
    "runpod_variants": {},
    "vast": {
     "on_demand": {
-     "offer_count": 16,
-     "gpu_count": 62,
-     "min": 6.8753,
-     "p25": 6.8774,
-     "median": 8.5079,
-     "p75": 8.7503
+     "offer_count": 13,
+     "gpu_count": 54,
+     "min": 6.6569,
+     "p25": 6.8764,
+     "median": 8.7388,
+     "p75": 8.7401
     },
     "bid": {
-     "offer_count": 14,
-     "gpu_count": 53,
+     "offer_count": 13,
+     "gpu_count": 54,
      "min": 4.3753,
-     "p25": 4.6587,
-     "median": 7.0474,
-     "p75": 8.4021
+     "p25": 4.3778,
+     "median": 7.5003,
+     "p75": 8.7026
     }
    }
   },
@@ -52,20 +52,20 @@
    },
    "vast": {
     "on_demand": {
-     "offer_count": 71,
-     "gpu_count": 199,
-     "min": 3.0002,
-     "p25": 3.7511,
+     "offer_count": 73,
+     "gpu_count": 207,
+     "min": 3.2971,
+     "p25": 3.6052,
      "median": 4.0028,
-     "p75": 4.7708
+     "p75": 4.6077
     },
     "bid": {
      "offer_count": 55,
-     "gpu_count": 146,
-     "min": 1.318,
+     "gpu_count": 150,
+     "min": 1.3169,
      "p25": 2.0017,
-     "median": 2.6672,
-     "p75": 3.6683
+     "median": 2.667,
+     "p75": 3.5455
     }
    }
   },
@@ -92,20 +92,20 @@
    },
    "vast": {
     "on_demand": {
-     "offer_count": 24,
-     "gpu_count": 38,
+     "offer_count": 35,
+     "gpu_count": 61,
      "min": 1.5341,
-     "p25": 1.7343,
-     "median": 2.6277,
-     "p75": 3.3449
+     "p25": 2.0017,
+     "median": 2.5221,
+     "p75": 3.4229
     },
     "bid": {
-     "offer_count": 16,
-     "gpu_count": 24,
-     "min": 0.6682,
-     "p25": 0.6738,
+     "offer_count": 26,
+     "gpu_count": 42,
+     "min": 0.657,
+     "p25": 0.6735,
      "median": 1.4672,
-     "p75": 1.8522
+     "p75": 1.6989
     }
    }
   },
@@ -132,20 +132,20 @@
    },
    "vast": {
     "on_demand": {
-     "offer_count": 38,
-     "gpu_count": 79,
+     "offer_count": 25,
+     "gpu_count": 46,
      "min": 0.5222,
-     "p25": 0.8919,
-     "median": 1.2185,
-     "p75": 1.5246
+     "p25": 0.8678,
+     "median": 1.0415,
+     "p75": 1.3384
     },
     "bid": {
-     "offer_count": 32,
-     "gpu_count": 68,
-     "min": 0.1411,
-     "p25": 0.411,
-     "median": 0.6684,
-     "p75": 1.0462
+     "offer_count": 21,
+     "gpu_count": 41,
+     "min": 0.1402,
+     "p25": 0.4689,
+     "median": 0.6678,
+     "p75": 1.0413
     }
    }
   },
@@ -160,16 +160,16 @@
    "vast": {
     "on_demand": {
      "offer_count": 36,
-     "gpu_count": 101,
-     "min": 0.4296,
+     "gpu_count": 104,
+     "min": 0.4422,
      "p25": 0.5348,
-     "median": 0.7744,
+     "median": 0.8004,
      "p75": 0.8017
     },
     "bid": {
      "offer_count": 21,
      "gpu_count": 62,
-     "min": 0.2674,
+     "min": 0.2292,
      "p25": 0.3337,
      "median": 0.4015,
      "p75": 0.5348
@@ -186,20 +186,20 @@
    "runpod_variants": {},
    "vast": {
     "on_demand": {
-     "offer_count": 277,
-     "gpu_count": 680,
-     "min": 0.2129,
-     "p25": 0.5489,
-     "median": 0.6672,
-     "p75": 0.8059
+     "offer_count": 402,
+     "gpu_count": 1099,
+     "min": 0.2689,
+     "p25": 0.5603,
+     "median": 0.6293,
+     "p75": 0.7606
     },
     "bid": {
-     "offer_count": 251,
-     "gpu_count": 545,
+     "offer_count": 296,
+     "gpu_count": 738,
      "min": 0.2007,
-     "p25": 0.4041,
-     "median": 0.4956,
-     "p75": 0.6006
+     "p25": 0.4037,
+     "median": 0.5195,
+     "p75": 0.6025
     }
    }
   },
@@ -213,19 +213,19 @@
    "runpod_variants": {},
    "vast": {
     "on_demand": {
-     "offer_count": 56,
-     "gpu_count": 182,
-     "min": 0.3378,
-     "p25": 0.441,
-     "median": 0.4932,
-     "p75": 0.5909
+     "offer_count": 360,
+     "gpu_count": 777,
+     "min": 0.2806,
+     "p25": 0.4289,
+     "median": 0.4756,
+     "p75": 0.6037
     },
     "bid": {
-     "offer_count": 336,
-     "gpu_count": 731,
+     "offer_count": 375,
+     "gpu_count": 765,
      "min": 0.0038,
-     "p25": 0.2893,
-     "median": 0.3536,
+     "p25": 0.2909,
+     "median": 0.3622,
      "p75": 0.4685
     }
    }
