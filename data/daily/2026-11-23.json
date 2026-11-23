@@ -1,0 +1,247 @@
+{
+ "captured_at": "2026-11-23T08:59:15+00:00",
+ "date": "2026-11-23",
+ "notes": {
+  "runpod": "api.runpod.io/graphql gpuTypes; USD per GPU-hour; price 0/null = not offered -> null. Headline = primary variant per model; others in runpod_variants.",
+  "vast": "console.vast.ai bundles; per-GPU = dph_total/num_gpus; each machine offer counted once; server cap 64/query so queried by price bisection. bid = interruptible."
+ },
+ "errors": [],
+ "warnings": [],
+ "models": {
+  "b200": {
+   "runpod": {
+    "secure": 7.99,
+    "community": 5.98,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {},
+   "vast": {
+    "on_demand": {
+     "offer_count": 16,
+     "gpu_count": 55,
+     "min": 4.5003,
+     "p25": 7.5017,
+     "median": 8.2313,
+     "p75": 8.7426
+    },
+    "bid": {
+     "offer_count": 13,
+     "gpu_count": 42,
+     "min": 1.5007,
+     "p25": 5.0014,
+     "median": 6.9581,
+     "p75": 8.7026
+    }
+   }
+  },
+  "h200": {
+   "runpod": {
+    "secure": 5.29,
+    "community": 3.59,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {
+    "NVIDIA H200 NVL": {
+     "secure": 3.79,
+     "community": 0.5,
+     "secure_spot": null,
+     "community_spot": null
+    }
+   },
+   "vast": {
+    "on_demand": {
+     "offer_count": 50,
+     "gpu_count": 124,
+     "min": 3.0689,
+     "p25": 3.7338,
+     "median": 4.0022,
+     "p75": 4.9338
+    },
+    "bid": {
+     "offer_count": 39,
+     "gpu_count": 89,
+     "min": 1.2022,
+     "p25": 2.0539,
+     "median": 2.6681,
+     "p75": 3.6676
+    }
+   }
+  },
+  "h100": {
+   "runpod": {
+    "secure": 4.39,
+    "community": 2.69,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {
+    "NVIDIA H100 PCIe": {
+     "secure": 2.89,
+     "community": 1.99,
+     "secure_spot": null,
+     "community_spot": null
+    },
+    "NVIDIA H100 NVL": {
+     "secure": 3.19,
+     "community": 2.59,
+     "secure_spot": null,
+     "community_spot": null
+    }
+   },
+   "vast": {
+    "on_demand": {
+     "offer_count": 18,
+     "gpu_count": 27,
+     "min": 1.427,
+     "p25": 1.5847,
+     "median": 2.3402,
+     "p75": 3.1286
+    },
+    "bid": {
+     "offer_count": 9,
+     "gpu_count": 11,
+     "min": 0.6729,
+     "p25": 0.674,
+     "median": 1.4681,
+     "p75": 1.9941
+    }
+   }
+  },
+  "a100": {
+   "runpod": {
+    "secure": 2.19,
+    "community": 1.39,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {
+    "NVIDIA A100 80GB PCIe": {
+     "secure": 2.09,
+     "community": 1.19,
+     "secure_spot": null,
+     "community_spot": null
+    },
+    "NVIDIA A100-SXM4-40GB": {
+     "secure": null,
+     "community": 1.0,
+     "secure_spot": null,
+     "community_spot": null
+    }
+   },
+   "vast": {
+    "on_demand": {
+     "offer_count": 57,
+     "gpu_count": 108,
+     "min": 0.5206,
+     "p25": 0.9356,
+     "median": 1.136,
+     "p75": 1.4141
+    },
+    "bid": {
+     "offer_count": 37,
+     "gpu_count": 76,
+     "min": 0.1942,
+     "p25": 0.4672,
+     "median": 0.668,
+     "p75": 1.0413
+    }
+   }
+  },
+  "l40s": {
+   "runpod": {
+    "secure": 1.09,
+    "community": 0.79,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {},
+   "vast": {
+    "on_demand": {
+     "offer_count": 35,
+     "gpu_count": 98,
+     "min": 0.4293,
+     "p25": 0.6344,
+     "median": 0.7348,
+     "p75": 0.8091
+    },
+    "bid": {
+     "offer_count": 22,
+     "gpu_count": 61,
+     "min": 0.2677,
+     "p25": 0.4005,
+     "median": 0.4022,
+     "p75": 0.5851
+    }
+   }
+  },
+  "rtx-5090": {
+   "runpod": {
+    "secure": 1.39,
+    "community": 0.69,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {},
+   "vast": {
+    "on_demand": {
+     "offer_count": 511,
+     "gpu_count": 1372,
+     "min": 0.2129,
+     "p25": 0.6007,
+     "median": 0.6904,
+     "p75": 0.8685
+    },
+    "bid": {
+     "offer_count": 493,
+     "gpu_count": 1281,
+     "min": 0.2007,
+     "p25": 0.4689,
+     "median": 0.5356,
+     "p75": 0.6323
+    }
+   }
+  },
+  "rtx-4090": {
+   "runpod": {
+    "secure": 0.89,
+    "community": 0.34,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {},
+   "vast": {
+    "on_demand": {
+     "offer_count": 433,
+     "gpu_count": 992,
+     "min": 0.3339,
+     "p25": 0.4554,
+     "median": 0.4939,
+     "p75": 0.6074
+    },
+    "bid": {
+     "offer_count": 347,
+     "gpu_count": 829,
+     "min": 0.0038,
+     "p25": 0.3206,
+     "median": 0.3763,
+     "p75": 0.4344
+    }
+   }
+  },
+  "mi300x": {
+   "runpod": {
+    "secure": 2.39,
+    "community": 0.5,
+    "secure_spot": null,
+    "community_spot": null
+   },
+   "runpod_variants": {},
+   "vast": {
+    "on_demand": null,
+    "bid": null
+   }
+  }
+ }
+}
